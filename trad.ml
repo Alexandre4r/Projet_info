@@ -1,1 +1,1 @@
-let is_stephanie_catin= True;;
+let isStephanieCatin= True;;
