@@ -13,8 +13,9 @@ void imprim(maillon* m){
 
 int main(){
 
-  FILE* fichier = fopen("trad.ml", "r");
-  maillon* liste = lexeur(fichier);
+  FILE* fichierML = fopen("trad.ml", "r");
+  FILE* fichierC = fopen("fichier.c", "r");
+  maillon* liste = lexeur(fichierC);
   imprim(liste);
   printf("steph");
 
