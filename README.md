@@ -1,2 +1,2 @@
 # Projet_info
-Celian ta grosse daronne vaut pas  plus de  20$/h
+Celian ta grosse daronne vaut pas  plus de  20$/h(correction 15 cette chaudasse)
