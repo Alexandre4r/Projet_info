@@ -5,4 +5,7 @@
 #include "lexer.h" #importe les fonctions du fichier lexer.c
 
 int main(){
+
+  FILE* fichier = fopen jsp;;
+  
 }
