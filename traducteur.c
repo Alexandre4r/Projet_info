@@ -6,6 +6,9 @@
 
 void imprim(maillon* m){
   printf("%s",m->argument);
+  if (m->suivant !=NULL){
+    imprim(m->suivant);
+  }
 }
 
 int main(){
