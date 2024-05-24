@@ -7,6 +7,6 @@
 int main(){
 
   FILE* fichier = fopen("trad.ml", "r");;
-  maillon* liste = lexeur(fichier);
+  maillon* liste = lexer(fichier);
 
 }
