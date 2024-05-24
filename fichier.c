@@ -1,3 +1,3 @@
 int main(){
-    int steph_body_cout =9999999;
+    int stephBodyCount =9999999;
 }
