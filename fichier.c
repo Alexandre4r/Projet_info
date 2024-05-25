@@ -1,3 +1,1 @@
-int main(){
-    int stephBodyCount =9999999;
-}
+int stephBodyCount = 9999999;
