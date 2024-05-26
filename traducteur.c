@@ -24,6 +24,13 @@ typedef struct{
   };
 }objet;
 
+void ntm(char* a, char* valeur){
+  objet* o =  malloc(sizeof(objet));
+  o->type_objet = "VAR_DECLARATION";
+  o->decl->nom  = "tadaronne";
+  o->decl->valeur = "balec";
+
+}
 
 
 void imprim(maillon* m){
