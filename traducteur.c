@@ -4,14 +4,27 @@
 #include <string.h>
 #include "lexer.h" //importe les fonctions du fichier lexer.c
 
+
+typedef struct {char* nom;char* valeur;}var_declaration;
+typedef struct {char* body;} commentaire; //a modif
+typedef struct {char* nom;char* param; maillon* body;}fonction; //a modif
+typedef struct {char* nom;char* valeur;}var_assignement; //a modif
+typedef struct {maillon* condition; maillon* body;}b_for; //a modif
+typedef struct {maillon* condition; maillon* body;}b_while; //a modif
+
 //type pour organiser les lexemes par "groupe syntaxique" ex fonction,declaration variable, etc
 typedef struct{
-  enum{FONCTION, VAR_DECLARATION, VAR_ASSIGNEMENT, FOR, WHILE, IF, ELSE} type_objet; 
+  char* type_objet; //FONCTION, VAR_DECLARATION, VAR_ASSIGNEMENT, FOR, WHILE, IF, COMMENTAIRE
   // type de l'objet(!= du lexeme)
-  union {//a l'avenir pour stoker les differentes stuct envisageables
-    struct {char* nom;char* valeur;} var_declaration;
+  union{//a l'avenir pour stoker les differentes stuct envisageables
+    var_declaration decl;
+    commentaire com;
+    fonction f;
+    var_assignement agt;
   };
 }objet;
+
+
 
 void imprim(maillon* m){
   printf("%d, :%s \n",(m->lexeme), (m->argument));
