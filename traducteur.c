@@ -23,7 +23,7 @@ typedef struct{
     var_assignement agt;
   };
 }objet;
-
+/*
 void ntm(char* a, char* valeur){
   objet* o =  malloc(sizeof(objet));
   o->type_objet = "VAR_DECLARATION";
@@ -31,21 +31,69 @@ void ntm(char* a, char* valeur){
   o->decl->valeur = "balec";
 
 }
-
+*/
 
 void imprim(maillon* m){
-  printf("%d, :%s \n",(m->lexeme), (m->argument));
+  printf("%c, :%s \n",(m->lexeme), (m->argument));
   if (m->suivant !=NULL){
     imprim(m->suivant);
   }
 }
+char* compare(char* c, char** t, int n){
+  for (int i =0; i<=n; i++){
+   if (t[i]==c){
+    return c;
+   }
+  }
+  return "";
+}
+maillon* next (maillon* m){
+  maillon* a = m->suivant;
+  while (a->argument = " ") {
+    a = a->suivant;
+  }
+  return a;
+}
+
+maillon* assign (maillon* m){
+  printf("let");
+  maillon* a = next(m);
+  printf(" %s",m->argument);
+  a=next(next(a));
+  printf(" %s",m->argument);
+  return a->suivant;
+}
+
+
+void traitement(maillon* m){
+  // comparer m->argument a un tableau pour trouver mot cle
+  //printf("stephanie la catin");
+  if (m->suivant == NULL){
+    printf("\n END");
+  }
+  else if (m->argument == "int" || m->argument == "bool"){
+    //verifie si pas une fct
+    traitement(assign(m));
+    
+  }
+  else if (m->argument == ";;"){
+    printf(";;");
+  }
+  else {
+    printf("%s",(m->argument));
+    traitement(m->suivant);
+  }
+}
+
+
+
 
 
 int main(){
 
-  FILE* fichierML = fopen("trad.ml", "r");
+  FILE* fichierML = fopen("trad.ml", "w");
   FILE* fichierC = fopen("fichier.c", "r");
   maillon* liste = lexeur(fichierC);
-  affiche_liste(liste);
+  traitement(liste->suivant);
 
 }
