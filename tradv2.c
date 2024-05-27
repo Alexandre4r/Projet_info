@@ -4,9 +4,6 @@
 #include <string.h>
 #include "lexer.h" //importe les fonctions du fichier lexer.c
 
-const char* type1[] = {"bool", "int", "void"};
-const int len_type1 = 3; 
-
 //j'ai r commenté mais ntm theo il est 2h t'avais qu'a venir sale alsacien
 
 
