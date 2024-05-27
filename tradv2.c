@@ -49,7 +49,6 @@ bool est_fonction(maillon* m){
 }
 
 maillon* creer_declaration(maillon* m){
-  
   if(m == NULL){return NULL;};
   if(m->lexeme == 'T'){printf("let ");return creer_declaration(m->suivant);};
   if(strcmp(m->argument,";") == 0){printf(";;\n");return m->suivant;};
