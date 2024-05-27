@@ -40,6 +40,12 @@ typedef struct{
 }objet;
 
 */
+void imprim(maillon* m){
+  printf("%c, :%s \n",(m->lexeme), (m->argument));
+  if (m->suivant !=NULL){
+    imprim(m->suivant);
+  }
+}
 
 bool est_fonction(maillon* m){
   if(m == NULL){return NULL;};
@@ -65,12 +71,9 @@ maillon* creer_assignement(maillon* m){
   return creer_assignement(m->suivant);
 }
 
-maillon* creer_fonction(maillon* m){
-  if(m == NULL){return NULL;};
-  while(strcmp(m->argument,"{") != 0){
-    m = m->suivant;
-  }return  m;
-}
+
+
+
 
 /*j'avais pas lu  le pdf faut changer  ca  dcp(traduction:t'as interet a le faire theo)*/
 maillon* creer_commentaire(maillon* m){
@@ -80,6 +83,70 @@ maillon* creer_commentaire(maillon* m){
   if(m->lexeme  == 'V'){printf("%s", m->argument);return creer_commentaire(m->suivant);}
   return creer_commentaire(m->suivant);
 
+}
+
+
+maillon* creer_assignement_fonction(maillon* m){
+  if(m == NULL){return NULL;};
+  if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;};
+  if(strcmp(m->argument,"=") == 0){printf(":= ");return creer_assignement_fonction(m->suivant);};
+  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant);};
+  printf("%s ", m->argument);
+  return creer_assignement_fonction(m->suivant);
+}
+
+maillon* creer_declaration_fonction(maillon* m){
+  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
+  if(m == NULL){return NULL;};
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
+  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
+  return creer_declaration_fonction(m->suivant);
+}
+
+maillon* return_fonction(maillon* m){
+  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
+  if(m == NULL){return NULL;};
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
+  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
+  return creer_declaration_fonction(m->suivant);
+}
+
+maillon* parcours_fonction(maillon* m){
+  if(m == NULL){return NULL;}
+  else if(strcmp(m->argument,"}") == 0){
+    return m->suivant;}
+  else if(m->lexeme == 'T'){
+    if(est_fonction(m)){
+      return NULL;
+    }else
+    return parcours_fonction(creer_declaration_fonction(m));}
+  else if(m->lexeme == 'V'){return parcours_fonction(creer_assignement_fonction(m));}
+  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}
+  else{return parcours_fonction(m->suivant);};
+}
+maillon* creer_fonction(maillon* m){
+  if(m == NULL){return NULL;};
+  bool is_main = false;
+  while(strcmp(m->argument,"{") != 0){
+    if (strcmp(m->argument,"main") == 0){
+      is_main = true;
+    }
+    m = m->suivant;
+  }
+  if (is_main){
+    return m;
+  }
+  else
+  printf("debut fct ");
+  m= parcours_fonction(m); 
+  printf(";; fin fct \n");
+  return m;
 }
 
 void parcours(maillon* m){
@@ -99,6 +166,6 @@ int main(){
   FILE* fichierML = fopen("trad.ml", "r");
   FILE* fichierC = fopen("fichier.c", "r");
   maillon* liste = lexeur(fichierC);
-  parcours(liste);
+  imprim(liste);
 }
 
