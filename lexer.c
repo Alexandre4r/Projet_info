@@ -44,10 +44,10 @@ const char* type[] = {"bool", "int", "void"};
 const int len_type = 3; 
 const char* motcle[] = {"while"};
 const int len_motcle = 1;
-const char operateurs_simples[] = {'+', '-', '/', '*', '%'};
-const int len_ops = 5;
-const char operateurs_doubles[] = {'=', '|', '&','<','>','!'};
-const int len_opd = 6;
+const char operateurs_simples[] = {'+', '-', '%'};
+const int len_ops = 3;
+const char operateurs_doubles[] = {'=', '|', '&','<','>','!','/', '*'};
+const int len_opd = 8;
 
 bool char_in ( char c, const char tab[], const int len){
     //Teste si le caractère est dans le tableau (il nous faut sa longueur)
@@ -125,8 +125,37 @@ maillon* lexeur (FILE* fichier){
             char d = c;
             c = fgetc(fichier);
             if(char_in (c, operateurs_doubles, len_opd)){
+                if (d == '/' && c == '/'){
+                    c = fgetc(fichier);
+                    while (c!='\n'){
+                            buffer[len_buffer] = c;
+                            len_buffer++;
+                            c = fgetc(fichier);
+                        }
+                        buffer[len_buffer] = c;
+                        len_buffer++;
+                        c = fgetc(fichier);
+
+                    c = fgetc(fichier);
+                if(d == '/' && c == '*'){
+                    c = fgetc(fichier);
+                    char e = fgetc(fichier);
+                    while (c!='*' && e!= '/'){
+                        buffer[len_buffer] = c;
+                        len_buffer++;
+                        c = e;
+                        e = fgetc(fichier);
+                    }
+                    }
+                    else{
+                        
+                    }
+                ajoute_maillon_fin (&fin, 'C', cree_arg(buffer, len_buffer));
+                // 'C' pour indiquer un commentaire
+            }else 
                 buffer[0]=d;
                 buffer[1]=c;
+
                 len_buffer = 2;
                 ajoute_maillon_fin (&fin, 'B', cree_arg(buffer, len_buffer));
                 // 'B' pour indiquer un opérateur binaire
@@ -174,14 +203,15 @@ maillon* lexeur (FILE* fichier){
                 ajoute_maillon_fin (&fin, 'M', chaine);
                 // 'M' pour indiquer un mot clé
             }
-            else {ajoute_maillon_fin (&fin, 'V', chaine);}
-            // 'V' pour indiquer une variable
-        }
-        //Dernier cas : on est face à quelque chose d'anormal
-        else{
-            fprintf(stderr, "Le charactère %c de numéro %d n'a pas été reconnu.", c, (int) c);
-            exit(1);
-        }
+        else {ajoute_maillon_fin (&fin, 'V', chaine);}
+        // 'V' pour indiquer une variable
     }
-    return debut;
+    //Dernier cas : on est face à quelque chose d'anormal
+    else{
+        fprintf(stderr, "Le charactère %c de numéro %d n'a pas été reconnu.", c, (int) c);
+        exit(1);
+    }
 }
+return debut;
+}
+
