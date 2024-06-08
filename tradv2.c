@@ -156,10 +156,51 @@ maillon* creer_fonction(maillon* m){
   return m;
 }
 
+
 maillon* printf_(maillon* m){
+  int parent_ouv = 0;
+  int parent_ferm = 0;
+  int nb_guimmets = 0; 
   if(m == NULL){return NULL};
-  if(strcmp(m->argument, "printf") == 0){printf("Printf.printf"); return printf_(m->suivant);}
-  if(strcmp(m->argument, ))
+  while(strcmp(m->argument,")") != 0 && parent_ouvre != parent_ferm){
+
+     if(strcmp(m->argument, "printf") == 0){
+      printf("Printf.printf");
+    }
+
+    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
+    else if(strcmp(m->argument,"(") == 0 && parent_ouv == 0){parent_ouv = parent_ouv+1;}
+    else if(strcmp(m->argument,"(") == 0 && parent_ouv != 0){
+      parent_ouv = parent_ouv+1;
+      printf("(");
+    }
+
+    else if(strcmp(m->argument,")") == 0){
+      parent_ferm = parent_ferm+1;
+      printf(")");
+    }
+
+    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
+    else if((m->argument) == '"'){
+      printf("%c", '"');
+      nb_guimmets = nb_guimmets +1;
+    }
+    else if((m->argument) == ',' && nb_guimmets % 2 != 0){
+    }else if((m->argument) == ',' && nb_guimmets % 2 = 0){
+      printf("%c", ',');
+    }
+
+    else if(m->lexeme == 'V'){
+      printf("!%s", m->argument);
+    }else{
+      printf("%s", m->argument);
+    }
+
+    m = m->suivant;
+  }
+ 
+  printf(";;");
+  return m;
 
 }
 
@@ -169,11 +210,11 @@ void parcours(maillon* m){
   else if(m->lexeme == 'T'){
     if(est_fonction(m)){
       return parcours(creer_fonction(m));
-    }else
+    }else{
     return parcours(creer_declaration(m));}
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
   else if(m->lexeme == 'M'){
-    if(strcmp(m->argument,"printf") == 1){
+    if(strcmp(m->argument,"printf") == 0){
       return parcous(printf_(m));
     }
   }
