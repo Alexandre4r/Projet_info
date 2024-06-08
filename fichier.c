@@ -21,4 +21,10 @@ int main(){
     fonction(0,1);
 
     printf("Test");
+    while (i<=1){
+        i=i-1;
+    }
+    if (i!=2){
+        fonction(0,1);
+    }
 }

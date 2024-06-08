@@ -172,7 +172,56 @@ maillon* creer_fonction(maillon* m){
   printf(";;\n");
   return m;
 }
+maillon* parcours_conditionnelle(maillon* m){
+  if(m == NULL){return NULL;}
+  else if(strcmp(m->argument,"}") == 0){
+    return m->suivant;}
+  else if(m->lexeme == 'T'){
+    if(est_fonction(m)){
+      return NULL;
+    }else
+    return parcours_conditionnelle(creer_declaration(m,0,";;\n"));}
+  else if(m->lexeme == 'V'){    
+    if(est_fonction(m)){
+      return parcours_conditionnelle(appel_fonction(m,-1,";;\n"));
+    }else {
+        return parcours_conditionnelle(creer_assignement(m, 0,";;"));}}
+//  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
+  else if(m->lexeme == 'C'){return parcours_conditionnelle(creer_commentaire(m, 0));} // commentaires //
+  else if(m->lexeme == 'A'){return parcours_conditionnelle(creer_commentaire(m, 1));} // commentaires  /**/
+  else if(m->lexeme == 'M'){
+    if(strcmp(m->argument,"return") == 0){
+      return parcours_conditionnelle(return_fonction(m)); 
+    }
+  }
 
+  else{return parcours_fonction(m->suivant);};
+}
+
+maillon* creer_conditionnelle(maillon* m, int if_or_while){
+  if(m == NULL){return NULL;}
+  while(strcmp(m->argument,"{") != 0){
+    if(strcmp(m->argument,"!=") == 0){
+        printf("<>");
+    }
+    else {
+    printf("%s", m->argument);
+    }
+    m = m->suivant;
+  }
+  if (if_or_while==1){
+    printf(" do \n");
+    m= parcours_conditionnelle(m); 
+    printf("done;;\n");
+  }
+  else{
+    printf(" then begin \n");
+    m= parcours_conditionnelle(m); 
+    printf(" end;;\n");
+  
+  }
+  return m;
+}
 void parcours(maillon* m){
   if(m == NULL){return;}
   else if(m->lexeme =='D'){return parcours(m->suivant);}
@@ -188,7 +237,19 @@ void parcours(maillon* m){
         return parcours(creer_assignement(m, 0,";;"));}}
   else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
-  else{return parcours(m->suivant);};
+  else if(m->lexeme == 'M'){
+    if(strcmp(m->argument,"return") == 0){
+      return parcours(m->suivant);
+    }
+    if(strcmp(m->argument,"if") == 0){
+      return parcours(creer_conditionnelle(m,0));
+    }
+    if(strcmp(m->argument,"while") == 0){
+      return parcours(creer_conditionnelle(m,1)); 
+    }
+    else{return parcours(m->suivant);}
+  }
+  else{return parcours(m->suivant);}
 }
 
 int main(){

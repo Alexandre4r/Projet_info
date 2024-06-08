@@ -7,3 +7,4 @@ let g()=
 g(ref ());;
 let a = ref 0;;
 fonction(ref !a);;
+if a=2 then 2
