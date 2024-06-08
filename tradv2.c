@@ -91,6 +91,7 @@ maillon* creer_assignement_fonction(maillon* m){
   if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;};
   if(strcmp(m->argument,"=") == 0){printf(":= ");return creer_assignement_fonction(m->suivant);};
   if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant);};
+  if(m->lexeme=='V'){printf("!%s ", m->argument);return creer_assignement_fonction(m->suivant);}
   printf("%s ", m->argument);
   return creer_assignement_fonction(m->suivant);
 }
@@ -133,19 +134,25 @@ maillon* parcours_fonction(maillon* m){
 maillon* creer_fonction(maillon* m){
   if(m == NULL){return NULL;};
   bool is_main = false;
+  bool nom_fct = true;
   while(strcmp(m->argument,"{") != 0){
     if (strcmp(m->argument,"main") == 0){
       is_main = true;
     }
+    if(m->lexeme=='V'){
+      if (nom_fct){printf("let %s ", m->argument);nom_fct=false;}
+      else {printf("%s ", m->argument);}
+    }
+    
     m = m->suivant;
   }
   if (is_main){
     return m;
   }
   else
-  printf("debut fct ");
+  printf("= \n");
   m= parcours_fonction(m); 
-  printf(";; fin fct \n");
+  printf(";;\n");
   return m;
 }
 
@@ -166,6 +173,6 @@ int main(){
   FILE* fichierML = fopen("trad.ml", "r");
   FILE* fichierC = fopen("fichier.c", "r");
   maillon* liste = lexeur(fichierC);
-  imprim(liste);
+  parcours(liste);
 }
 
