@@ -1,4 +1,5 @@
 let fonction(arg)= 
- !arg;;
-
-fonction(ref 0);;
+  !arg;
+;;
+let a = ref 0;;
+fonction(ref !a);;

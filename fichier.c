@@ -11,9 +11,10 @@ int main(){
     /* test2 * */
     return 0;
     
-    int i = 1; /*test2 * */
+    int i = fonction(a1,3); /*test2 * */
     int x= i*1;
     x = 1;
+    fonction(0,1);
 
     printf("Test");
 }
