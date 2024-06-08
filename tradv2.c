@@ -161,8 +161,8 @@ maillon* printf_(maillon* m){
   int parent_ouv = 0;
   int parent_ferm = 0;
   int nb_guimmets = 0; 
-  if(m == NULL){return NULL};
-  while(strcmp(m->argument,")") != 0 || parent_ouvre != parent_ferm){
+  if(m == NULL){return NULL;}
+  while(strcmp(m->argument,")") != 0 || parent_ouv != parent_ferm){
 
      if(strcmp(m->argument, "printf") == 0){
       printf("Printf.printf");
@@ -212,19 +212,20 @@ void parcours(maillon* m){
     if(est_fonction(m)){
       return parcours(creer_fonction(m));
     }else{
-    return parcours(creer_declaration(m));}
-  else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
+    return parcours(creer_declaration(m,0));}
+  }
+  else if(m->lexeme == 'V'){return parcours(creer_assignement(m,0));}
   else if(m->lexeme == 'M'){
     if(strcmp(m->argument,"printf") == 0){
       return parcous(printf_(m)); //Fonction Printf
     }
   }
-  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
-    return parcours(creer_declaration(m, 0));}
+  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant,0));}
+    return parcours(creer_declaration(m, 0));}}
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
   else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
-  else{return parcours(m->suivant);};
+  else{return parcours(m->suivant,0);};
 }
 
 

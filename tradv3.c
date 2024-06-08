@@ -41,7 +41,7 @@ typedef struct{
 
 */
 void imprim(maillon* m){
-  printf("%c, :%s \n",(m->lexeme), (m->argument));
+  printf("%c :%s \n",(m->lexeme), (m->argument));
   if (m->suivant !=NULL){
     imprim(m->suivant);
   }
@@ -54,69 +54,57 @@ bool est_fonction(maillon* m){
   return est_fonction(m->suivant);
 }
 
-maillon* creer_declaration(maillon* m){
+maillon* creer_declaration(maillon* m  ,int after_egal /*0 si avantle =, 1 si apres*/){
   if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration(m->suivant);};
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration(m->suivant,after_egal);};
   if(strcmp(m->argument,";") == 0){printf(";;\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration(m->suivant);};
-  return creer_declaration(m->suivant);
+  if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant,after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration(m->suivant,after_egal);};
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration(m->suivant,after_egal);};
+  return creer_declaration(m->suivant,after_egal);
 }
 
-maillon* creer_assignement(maillon* m){
+maillon* creer_assignement(maillon* m, int after_egal){
   if(m == NULL){return NULL;};
   if(strcmp(m->argument,";") == 0){printf(";;\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_assignement(m->suivant);};
+  if(strcmp(m->argument," ") == 0){return creer_assignement(m->suivant, after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement(m->suivant,after_egal);};
   printf("%s ", m->argument);
-  return creer_assignement(m->suivant);
+  return creer_assignement(m->suivant, after_egal);
 }
 
 
-
-
-
-/*j'avais pas lu  le pdf faut changer  ca  dcp(traduction:t'as interet a le faire theo)*/
-maillon* creer_commentaire(maillon* m){
-  if(m == NULL){return NULL;};
-  if(strcmp(m->argument,"/") == 0){printf("(*");return creer_commentaire(m->suivant);}
-  if(strcmp(m->argument, "\n") == 0){printf("*)\n");return m->suivant;};
-  if(m->lexeme  == 'V'){printf("%s", m->argument);return creer_commentaire(m->suivant);}
-  return creer_commentaire(m->suivant);
+//typecom a  modifier : reconnaitre les commentaire  // et /**/ pour les \n 
+maillon* creer_commentaire(maillon* m, int typecom){
+  if(typecom == 0){printf("(*%s*)\n", m->argument);return m->suivant;}
+  else{printf("(*%s*)", m->argument);return m->suivant;}
 
 }
 
 
-maillon* creer_assignement_fonction(maillon* m){
+maillon* creer_assignement_fonction(maillon* m, int after_egal){
   if(m == NULL){return NULL;};
   if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;};
-  if(strcmp(m->argument,"=") == 0){printf(":= ");return creer_assignement_fonction(m->suivant);};
-  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant);};
-  if(m->lexeme=='V'){printf("!%s ", m->argument);return creer_assignement_fonction(m->suivant);}
+  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant, after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement_fonction(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement_fonction(m->suivant,after_egal);};
   printf("%s ", m->argument);
-  return creer_assignement_fonction(m->suivant);
+  return creer_assignement_fonction(m->suivant, after_egal);
 }
 
-maillon* creer_declaration_fonction(maillon* m){
-  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
+maillon* creer_declaration_fonction(maillon* m,int after_egal){
   if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant,after_egal);};
   if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
-  return creer_declaration_fonction(m->suivant);
+  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant,after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration_fonction(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
+  return creer_declaration_fonction(m->suivant,after_egal);
 }
 
-maillon* return_fonction(maillon* m){
-  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
-  if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
-  return creer_declaration_fonction(m->suivant);
-}
 
 maillon* parcours_fonction(maillon* m){
   if(m == NULL){return NULL;}
@@ -126,11 +114,14 @@ maillon* parcours_fonction(maillon* m){
     if(est_fonction(m)){
       return NULL;
     }else
-    return parcours_fonction(creer_declaration_fonction(m));}
-  else if(m->lexeme == 'V'){return parcours_fonction(creer_assignement_fonction(m));}
-  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}
+    return parcours_fonction(creer_declaration_fonction(m,0));}
+  else if(m->lexeme == 'V'){return parcours_fonction(creer_assignement_fonction(m,0));}
+//  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
+  else if(m->lexeme == 'C'){return parcours_fonction(creer_commentaire(m, 0));} // commentaires //
+  else if(m->lexeme == 'A'){return parcours_fonction(creer_commentaire(m, 1));} // commentaires  /**/
   else{return parcours_fonction(m->suivant);};
 }
+
 maillon* creer_fonction(maillon* m){
   if(m == NULL){return NULL;};
   bool is_main = false;
@@ -139,9 +130,10 @@ maillon* creer_fonction(maillon* m){
     if (strcmp(m->argument,"main") == 0){
       is_main = true;
     }
-    if(m->lexeme=='V'){
-      if (nom_fct){printf("let %s ", m->argument);nom_fct=false;}
-      else {printf("%s ", m->argument);}
+    else if(m->lexeme=='P' && !is_main && strcmp(m->argument," ") != 0){printf("%s", m->argument);}
+    else if(m->lexeme=='V' && !is_main){
+      if (nom_fct){printf("let %s", m->argument);nom_fct=false;}
+      else {printf("%s", m->argument);}
     }
     
     m = m->suivant;
@@ -163,9 +155,10 @@ void parcours(maillon* m){
     if(est_fonction(m)){
       return parcours(creer_fonction(m));
     }else
-    return parcours(creer_declaration(m));}
-  else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
-  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
+    return parcours(creer_declaration(m, 0));}
+  else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
+  else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
+  else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
   else{return parcours(m->suivant);};
 }
 
@@ -173,6 +166,7 @@ int main(){
   FILE* fichierML = fopen("trad.ml", "r");
   FILE* fichierC = fopen("fichier.c", "r");
   maillon* liste = lexeur(fichierC);
+  imprim(liste);
   parcours(liste);
 }
 
