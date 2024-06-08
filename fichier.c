@@ -1,7 +1,11 @@
 int fonction(int argone,int argtwo){
     int b =5;
     b = b/4;
-    return b;
+    return b+g();
+}
+
+int g(){
+    return 5;
 }
 
 int main(){
