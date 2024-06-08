@@ -10,4 +10,8 @@ int main(){
     //test
     /* test2 * */
     return 0;
+    
+    int i = 1; /*test2 * */
+    int x= i*1;
+    x = 1;
 }

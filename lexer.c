@@ -127,39 +127,44 @@ maillon* lexeur (FILE* fichier){
             if(char_in (c, operateurs_doubles, len_opd)){
                 if (d == '/' && c == '/'){
                     c = fgetc(fichier);
-                    while (c!='\n'){
+                    while (c!='\n'  && c != EOF){
                             buffer[len_buffer] = c;
                             len_buffer++;
                             c = fgetc(fichier);
                         }
-                        buffer[len_buffer] = c;
-                        len_buffer++;
-                        c = fgetc(fichier);
-
+                    ajoute_maillon_fin (&fin, 'C', cree_arg(buffer, len_buffer));
+                    // 'C' pour indiquer un commentaire  //
                     c = fgetc(fichier);
-                if(d == '/' && c == '*'){
+ 
+                }else if(d == '/' && c == '*'){
                     c = fgetc(fichier);
                     char e = fgetc(fichier);
-                    while (c!='*' && e!= '/'){
+                    while (c!='*' && e!= '/' && c != EOF){
                         buffer[len_buffer] = c;
                         len_buffer++;
                         c = e;
                         e = fgetc(fichier);
                     }
-                    }
-                    else{
-                        
-                    }
-                ajoute_maillon_fin (&fin, 'C', cree_arg(buffer, len_buffer));
-                // 'C' pour indiquer un commentaire
-            }else 
-                buffer[0]=d;
-                buffer[1]=c;
+                    buffer[len_buffer] = c;
+                    len_buffer++;
+                    ajoute_maillon_fin (&fin, 'C', cree_arg(buffer, len_buffer));
+                    // 'A' pour indiquer un commentaire /* */
+                    c = fgetc(fichier);
+                    c = fgetc(fichier);
+                    c = fgetc(fichier); // on avance de 3 pour passer le */ de fin
+ 
+                }
+                    
+                else{
+                    buffer[0]=d;
+                    buffer[1]=c;
 
-                len_buffer = 2;
-                ajoute_maillon_fin (&fin, 'B', cree_arg(buffer, len_buffer));
-                // 'B' pour indiquer un opérateur binaire
-                c = fgetc(fichier);
+                    len_buffer = 2;
+                    ajoute_maillon_fin (&fin, 'B', cree_arg(buffer, len_buffer));
+                    // 'B' pour indiquer un opérateur binaire
+                    c = fgetc(fichier);
+                    }
+
             }
             else if (d == '='){
                 char* chaine= cree_arg(&d, 1);
