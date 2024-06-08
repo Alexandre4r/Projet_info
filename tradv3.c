@@ -71,7 +71,7 @@ maillon* creer_assignement(maillon* m, int after_egal){
   if(strcmp(m->argument," ") == 0){return creer_assignement(m->suivant, after_egal);};
   if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement(m->suivant,1);};
   if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement(m->suivant,after_egal);};
-  printf("%s ", m->argument);
+  printf("%s", m->argument);
   return creer_assignement(m->suivant, after_egal);
 }
 
@@ -90,7 +90,7 @@ maillon* creer_assignement_fonction(maillon* m, int after_egal){
   if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant, after_egal);};
   if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement_fonction(m->suivant,1);};
   if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement_fonction(m->suivant,after_egal);};
-  printf("%s ", m->argument);
+  printf("%s", m->argument);
   return creer_assignement_fonction(m->suivant, after_egal);
 }
 
