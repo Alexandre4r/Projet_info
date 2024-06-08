@@ -82,6 +82,13 @@ maillon* creer_commentaire(maillon* m){
 
 }
 
+maillon* printf_fonction(maillon* m){
+  if(m == NULL){return NULL};
+  if(strcmp(m->argument, "printf") == 0){printf("Printf.printf"); return printf_fonction(m->suivant);}
+  if(strcmp(m->argument, ))
+
+}
+
 void parcours(maillon* m){
   if(m == NULL){return;}
   else if(m->lexeme =='D'){return parcours(m->suivant);}
@@ -91,9 +98,15 @@ void parcours(maillon* m){
     }else
     return parcours(creer_declaration(m));}
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
+  else if(m->lexeme == 'M'){
+    if(strcmp(m->argument,"printf") == 1){
+      return parcous(printf_fonction(m));
+    }
+  }
   else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
   else{return parcours(m->suivant);};
 }
+
 
 int main(){
   FILE* fichierML = fopen("trad.ml", "r");
