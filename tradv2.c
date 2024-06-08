@@ -162,14 +162,14 @@ maillon* printf_(maillon* m){
   int parent_ferm = 0;
   int nb_guimmets = 0; 
   if(m == NULL){return NULL};
-  while(strcmp(m->argument,")") != 0 && parent_ouvre != parent_ferm){
+  while(strcmp(m->argument,")") != 0 || parent_ouvre != parent_ferm){
 
      if(strcmp(m->argument, "printf") == 0){
       printf("Printf.printf");
     }
 
     //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
-    else if(strcmp(m->argument,"(") == 0 && parent_ouv == 0){parent_ouv = parent_ouv+1;}
+    else if(strcmp(m->argument,"(") == 0 && parent_ouv == 0){printf(" ");parent_ouv = parent_ouv+1;}
     else if(strcmp(m->argument,"(") == 0 && parent_ouv != 0){
       parent_ouv = parent_ouv+1;
       printf("(");
@@ -185,8 +185,9 @@ maillon* printf_(maillon* m){
       printf("%c", '"');
       nb_guimmets = nb_guimmets +1;
     }
-    else if((m->argument) == ',' && nb_guimmets % 2 != 0){
-    }else if((m->argument) == ',' && nb_guimmets % 2 = 0){
+    else if((m->argument) == ',' && nb_guimmets % 2 == 0){
+      printf(" ");
+    }else if((m->argument) == ',' && nb_guimmets % 2 != 0){
       printf("%c", ',');
     }
 
@@ -215,7 +216,7 @@ void parcours(maillon* m){
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
   else if(m->lexeme == 'M'){
     if(strcmp(m->argument,"printf") == 0){
-      return parcous(printf_(m));
+      return parcous(printf_(m)); //Fonction Printf
     }
   }
   else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
