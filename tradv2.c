@@ -156,9 +156,9 @@ maillon* creer_fonction(maillon* m){
   return m;
 }
 
-maillon* printf_fonction(maillon* m){
+maillon* printf_(maillon* m){
   if(m == NULL){return NULL};
-  if(strcmp(m->argument, "printf") == 0){printf("Printf.printf"); return printf_fonction(m->suivant);}
+  if(strcmp(m->argument, "printf") == 0){printf("Printf.printf"); return printf_(m->suivant);}
   if(strcmp(m->argument, ))
 
 }
@@ -174,7 +174,7 @@ void parcours(maillon* m){
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
   else if(m->lexeme == 'M'){
     if(strcmp(m->argument,"printf") == 1){
-      return parcous(printf_fonction(m));
+      return parcous(printf_(m));
     }
   }
   else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
