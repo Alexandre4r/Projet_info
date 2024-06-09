@@ -21,7 +21,6 @@ bool test_maillon_suivant(maillon *m, char *s)
     while (strcmp(m->argument, " ") == 0)
     {
         m = m->suivant;
-
     }
     return (strcmp(m->argument, s) == 0);
 }
