@@ -778,14 +778,14 @@ void parcours(maillon *m)
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    // char fichier_a_traduire[255];
-    // printf("[TRADUCTEUR] Quel fichier C voulez-vous traduire ? : ");
-    // scanf("%254s" , &fichier_a_traduire);
-    FILE *fichierML = fopen("trad.ml", "r");
-    FILE *fichierC = fopen(/*fichier_a_traduire */ "fichier.c", "r");
-    maillon *liste = lexeur(fichierC);
-    imprim(liste);
-    parcours(liste);
+    if(argc>=2){
+        FILE *fichierML = fopen(argv[2], "r");
+        FILE *fichierC = fopen(/*fichier_a_traduire */ argv[1], "r");
+        maillon *liste = lexeur(fichierC);
+        imprim(liste);
+        parcours(liste);
+    }
+    
 }
