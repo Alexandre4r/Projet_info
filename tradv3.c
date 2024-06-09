@@ -79,7 +79,11 @@ maillon* printf_(maillon* m, char* end){
     }
     else if(m->lexeme == 'V'){
       printf("(!%s)", m->argument);
-    }else{
+    }
+    else if(m->lexeme == 'V' && est_fonction(m)){
+      printf("%s", m->argument);
+    }
+    else{
       printf("%s", m->argument);
     }
     m = m->suivant;
