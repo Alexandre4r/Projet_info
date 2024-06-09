@@ -1,10 +1,8 @@
-let fonction(arg)= 
-  !arg;
-;;
-let g()= 
-5;
-;;
-g(ref ());;
-let a = ref 0;;
-fonction(ref !a);;
-if a=2 then 2
+let i = ref 0;; 
+Printf.printf "%dtest" (!i);;
+while((!i) <> 4) do 
+i := (!i)+1;
+done;;
+if((!i)=3) then begin 
+Printf.printf "%dtest" (!i);
+ end;;
