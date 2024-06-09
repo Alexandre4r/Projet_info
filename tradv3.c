@@ -251,8 +251,20 @@ maillon* parcours_conditionnelle(maillon* m){
       return parcours_conditionnelle(return_fonction(m)); 
     }
     if(strcmp(m->argument, "printf") == 0){
-      return parcours_fonction(printf_(m, ";")); //Fonction Printf
+      return parcours_conditionnelle(printf_(m, ";;")); //Fonction Printf
     }
+    else if(strcmp(m->argument,"return") == 0){
+      return parcours_conditionnelle(m->suivant);
+    }
+    /*
+    else if(strcmp(m->argument,"if") == 0){
+      return parcours_conditionnelle(creer_conditionnelle(m,0));
+    }
+    else if(strcmp(m->argument,"while") == 0){
+      return parcours_conditionnelle(creer_conditionnelle(m,1)); 
+    }
+    */
+    else{return parcours_conditionnelle(m->suivant);}
   }
 
   else{return parcours_fonction(m->suivant);};
@@ -306,13 +318,13 @@ void parcours(maillon* m){
     if(strcmp(m->argument,"printf") == 0){
       return parcours(printf_(m, ";;")); //Fonction Printf
     }
-    if(strcmp(m->argument,"return") == 0){
+    else if(strcmp(m->argument,"return") == 0){
       return parcours(m->suivant);
     }
-    if(strcmp(m->argument,"if") == 0){
+    else if(strcmp(m->argument,"if") == 0){
       return parcours(creer_conditionnelle(m,0));
     }
-    if(strcmp(m->argument,"while") == 0){
+    else if(strcmp(m->argument,"while") == 0){
       return parcours(creer_conditionnelle(m,1)); 
     }
     else{return parcours(m->suivant);}

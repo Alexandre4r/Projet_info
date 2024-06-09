@@ -66,7 +66,7 @@ maillon* creer_declaration(maillon* m  ,int after_egal /*0 si avantle =, 1 si ap
     };
   if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant,after_egal);};
   if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration(m->suivant,1);};
-  if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration(m->suivant,after_egal);};
+  if(m->lexeme == 'V' && after_egal ==  1){printf("(!%s)", m->argument);return creer_declaration(m->suivant,after_egal);};
   if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration(m->suivant,after_egal);};
   return creer_declaration(m->suivant,after_egal);
 }
@@ -76,7 +76,7 @@ maillon* creer_assignement(maillon* m, int after_egal){
   if(strcmp(m->argument,";") == 0){printf(";;\n");return m->suivant;};
   if(strcmp(m->argument," ") == 0){return creer_assignement(m->suivant, after_egal);};
   if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement(m->suivant,1);};
-  if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement(m->suivant,after_egal);};
+  if(m->lexeme == 'V' && after_egal == 1){printf("(!%s)", m->argument);return creer_assignement(m->suivant,after_egal);};
   printf("%s ", m->argument);
   return creer_assignement(m->suivant, after_egal);
 }
@@ -91,23 +91,23 @@ maillon* creer_commentaire(maillon* m, int typecom){
 
 
 maillon* creer_assignement_fonction(maillon* m, int after_egal){
-  if(m == NULL){return NULL;};
-  if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant, after_egal);};
-  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement_fonction(m->suivant,1);};
-  if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement_fonction(m->suivant,after_egal);};
+  if(m == NULL){return NULL;}
+  if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;}
+  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant, after_egal);}
+  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement_fonction(m->suivant,1);}
+  if(m->lexeme == 'V' && after_egal == 1){printf("(!%s)", m->argument);return creer_assignement_fonction(m->suivant,after_egal);}
   printf("%s ", m->argument);
   return creer_assignement_fonction(m->suivant, after_egal);
 }
 
 maillon* creer_declaration_fonction(maillon* m,int after_egal){
-  if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant,after_egal);};
-  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant,after_egal);};
-  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration_fonction(m->suivant,1);};
-  if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
+  if(m == NULL){return NULL;}
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant,after_egal);}
+  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;}
+  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant,after_egal);}
+  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration_fonction(m->suivant,1);}
+  if(m->lexeme == 'V' && after_egal ==  1){printf("(!%s)", m->argument);return creer_declaration_fonction(m->suivant,after_egal);}
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);}
   return creer_declaration_fonction(m->suivant,after_egal);
 }
 
@@ -186,7 +186,7 @@ maillon* printf_(maillon* m){
       printf(" ");
     }
     else if(m->lexeme == 'V'){
-      printf("!%s", m->argument);
+      printf("(!%s)", m->argument);
     }else{
       printf("%s", m->argument);
     }
