@@ -246,34 +246,6 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
     else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);};
   }
 }
-/*
-maillon* creer_conditionnelle(maillon* m, int if_or_while){
-  if(m == NULL){return NULL;}
-  while(strcmp(m->argument,"{") != 0){
-    if(strcmp(m->argument,"!=") == 0){
-        printf("<>");
-    }
-    else if(m->lexeme=='V'){
-        printf("(!%s)", m->argument);
-    }
-    else {
-    printf("%s", m->argument);
-    }
-    m = m->suivant;
-  }
-  if (if_or_while==1){
-    printf(" do \n");
-    m= parcours_conditionnelle(m,if_or_while,true); 
-    printf("done;;\n");
-  }
-  else{
-    printf(" then begin \n");
-    m= parcours_conditionnelle(m,if_or_while,true); 
-    printf(" end;;\n");
-  }
-  return m;
-}
-*/
 
 maillon* parcours_fonction(maillon* m){
   if(m == NULL){return NULL;}
@@ -359,6 +331,9 @@ void parcours(maillon* m){
     else if(strcmp(m->argument,"while") == 0){
       return parcours(parcours_conditionnelle(m,1,false)); 
     }
+    else if(strcmp(m->argument,"for") == 0){
+        return parcours(m->suivant);
+        }
     else{return parcours(m->suivant);}
   }
   else{return parcours(m->suivant);}
