@@ -47,7 +47,7 @@ void imprim(maillon* m){
   }
 }
 
-maillon* printf_(maillon* m){
+maillon* printf_(maillon* m, char* end){
   int parent_ouv = 1;
   int parent_ferm = 0;
   bool first_parent = true;
@@ -86,7 +86,7 @@ maillon* printf_(maillon* m){
 
   }
 
-  printf(";;\n");
+  printf("%s\n", end);
   return m->suivant;
 
 }
@@ -99,6 +99,7 @@ bool est_fonction(maillon* m){
   if(strcmp(m->argument,";") == 0){return false;}
   return est_fonction(m->suivant);
 }
+
 maillon* appel_fonction(maillon* m, int parentheses, char* end){
   if(m == NULL){return NULL;}
   if(parentheses==0){printf("))%s",end);return m;}
@@ -189,7 +190,7 @@ maillon* parcours_fonction(maillon* m){
       return parcours_fonction(return_fonction(m)); 
     }
     if(strcmp(m->argument, "printf") == 0){
-      return parcours_fonction(printf_(m)); //Fonction Printf
+      return parcours_fonction(printf_(m, ";")); //Fonction Printf
     }
   }
 
@@ -216,7 +217,7 @@ maillon* creer_fonction(maillon* m){
     return m;
   }
   else
-  printf("= \n");
+  printf(" = \n");
   m= parcours_fonction(m); 
   printf(";;\n");
   return m;
@@ -244,7 +245,7 @@ maillon* parcours_conditionnelle(maillon* m){
       return parcours_conditionnelle(return_fonction(m)); 
     }
     if(strcmp(m->argument, "printf") == 0){
-      return parcours_fonction(printf_(m)); //Fonction Printf
+      return parcours_fonction(printf_(m, ";")); //Fonction Printf
     }
   }
 
@@ -295,7 +296,7 @@ void parcours(maillon* m){
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
   else if(m->lexeme == 'M'){
     if(strcmp(m->argument,"printf") == 0){
-      return parcours(printf_(m)); //Fonction Printf
+      return parcours(printf_(m, ";;")); //Fonction Printf
     }
     if(strcmp(m->argument,"return") == 0){
       return parcours(m->suivant);

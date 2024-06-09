@@ -9,7 +9,7 @@ int main(){
 
     int i=0;
     printf("%dtest", i);
-    while(i! = 4){
+    while(i!= 4){
         i = i+1;
     }
         if(i=3){
