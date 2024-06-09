@@ -109,6 +109,7 @@ maillon* creer_commentaire(maillon* m, int typecom){
   else{printf("(*%s*)", m->argument);return m->suivant;}
 
 }
+
 maillon* return_fonction(maillon* m){
   if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;}
   if(m->lexeme == 'V'){    
@@ -152,7 +153,7 @@ maillon* return_fonction(maillon* m){
       parent_ferm = parent_ferm+1;
     }
 
-    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
+    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on détecte si ces virgules sont dans une chaîne de caractère
     else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
       printf(" ");
     }
@@ -334,7 +335,7 @@ void parcours(maillon* m){
 
 int main(){
   //char fichier_a_traduire[255];
-  //printf("Quel fichier C voulez-vous traduire ? : ");
+  //printf("[TRADUCTEUR] Quel fichier C voulez-vous traduire ? : ");
   //scanf("%254s" , &fichier_a_traduire);
   FILE* fichierML = fopen("trad.ml", "r");
   FILE* fichierC = fopen(/*fichier_a_traduire */"fichier.c", "r");
