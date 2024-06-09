@@ -442,6 +442,22 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             {
                 printf("<>");
             }
+            else if(strcmp(m->argument,"==") == 0)
+            {
+                printf("=");
+            }
+            else if(strcmp(m->argument,"!") == 0){
+                if(test_maillon_suivant(m->suivant, "(")){
+                printf("not");return creer_assignement(m->suivant,1,end);
+                }
+                else{
+                    if(m->suivant->lexeme == 'V'){
+                        printf("not(!%s)", m->suivant->argument);
+                    }else{
+                        printf("not(%s)", m->suivant->argument);
+                    }
+                }
+            }
             else if (strcmp(m->argument, "if") == 0)
             {
                 printf("%s", m->argument);

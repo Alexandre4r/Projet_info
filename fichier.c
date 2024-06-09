@@ -9,7 +9,7 @@ int main(){
     printf("UXU %d", g(4, 5));
     int i=0;
     printf("%dtest", i);
-    while(i != 4){
+    while(i = 4){
         i = i+1;
         if(i==3){
             for(int j=0;j<=10;j=j+1){
