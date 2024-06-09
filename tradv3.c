@@ -4,70 +4,56 @@
 #include <string.h>
 #include "lexer.h" //importe les fonctions du fichier lexer.c
 
-// j'ai r commenté mais ntm theo il est 2h t'avais qu'a venir sale alsacien
-
-// Ca marche pas dcp c'est en commentaire
-
-/*
-typedef struct {char* nom;char* valeur;}var_declaration;
-typedef struct {char* body;} commentaire; //a modif
-typedef struct {char* nom;char* param; maillon* body;}fonction; //a modif
-typedef struct {char* nom;char* valeur;}var_assignement; //a modif
-typedef struct {maillon* condition; maillon* body;}b_for; //a modif
-typedef struct {maillon* condition; maillon* body;}b_while; //a modif
-
-typedef union{//a l'avenir pour stoker les differentes stuct envisageables
-    var_declaration decl;
-    commentaire com;
-    fonction f;
-    var_assignement agt;
-}union_type;
-
-typedef enum{
-  FONCTION,
-  VAR_DECLARATION,
-  VAR_ASSIGNEMENT,
-  FOR,
-  WHILE,
-  IF
-  }type_objet;
-
-//type pour organiser les lexemes par "groupe syntaxique" ex fonction,declaration variable, etc
-typedef struct{
-  type_objet  type; // type de l'objet(!= du lexeme)
-  union_type corps;
-}objet;
-
-*/
 void imprim(maillon *m)
 {
     printf("%c :%s \n", (m->lexeme), (m->argument));
+    /*fonction de debug qui affiche pour chaque maillon de la liste chainée son argument et son lexeme*/
     if (m->suivant != NULL)
     {
         imprim(m->suivant);
     }
 }
 
-//test si une chaine de caractere est apres m(onne prends pas en  compte les espaces)
-bool test_maillon_suivant(maillon* m, char* s){
-  while(strcmp(m->argument," ") == 0){
-    m=m->suivant;
-    printf("/%s/", m->argument);
-  }
-  return(strcmp(m->argument,s) == 0);
-}
-
-bool est_fonction(maillon* m){
-  if(m == NULL){return NULL;};
-  if(strcmp(m->argument,"(") == 0){return true;}
-  else if((m->lexeme == 'P' &&  strcmp(m->argument," ") != 0) || m->lexeme == 'O'){return false;}
-  if(m->lexeme == 'E'){return false;}
-  if(strcmp(m->argument,";") == 0){return false;}
-  return est_fonction(m->suivant);
-}
-
-maillon* appel_fonction(maillon *m, int parentheses, char *end)
+// test si une chaine de caractere est apres m(on ne prends pas en  compte les espaces)
+bool test_maillon_suivant(maillon *m, char *s)
 {
+    while (strcmp(m->argument, " ") == 0)
+    {
+        m = m->suivant;
+        printf("/%s/", m->argument);
+    }
+    return (strcmp(m->argument, s) == 0);
+}
+
+bool est_fonction(maillon *m)
+{
+    /*fonction qui renvoie true si l'argument fait partie d'une declaration/appel de fonction et false sinon*/
+    if (m == NULL)
+    {
+        return NULL;
+    };
+    if (strcmp(m->argument, "(") == 0)
+    {
+        return true;
+    }
+    else if ((m->lexeme == 'P' && strcmp(m->argument, " ") != 0) || m->lexeme == 'O')
+    {
+        return false;
+    }
+    if (m->lexeme == 'E')
+    {
+        return false;
+    }
+    if (strcmp(m->argument, ";") == 0)
+    {
+        return false;
+    }
+    return est_fonction(m->suivant);
+}
+
+maillon *appel_fonction(maillon *m, int parentheses, char *end)
+{
+    /*fonction qui traduit un appel de fonction*/
     if (m == NULL)
     {
         return NULL;
@@ -116,6 +102,7 @@ maillon* appel_fonction(maillon *m, int parentheses, char *end)
 
 maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apres*/, char *end)
 {
+    /*fonction qui traduit une declaration de variable*/
     if (m == NULL)
     {
         return NULL;
@@ -130,68 +117,142 @@ maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apr
         printf("%s \n", end);
         return m->suivant;
     }
-  if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant,after_egal,end);}
-  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration(m->suivant,1,end);}
-  if(m->lexeme == 'V' && after_egal ==  1){
-    if(est_fonction(m)){
-      return creer_declaration(appel_fonction(m,-1,""),after_egal, end);
-    }else {printf("(!%s)", m->argument);return creer_declaration(m->suivant,after_egal,end);}}
-  //prise en charge des booleens  
-  if(strcmp(m->argument,"==") == 0){printf("=");return creer_declaration(m->suivant,1,end);}
-  if(strcmp(m->argument,"!=") == 0){printf("<>");return creer_declaration(m->suivant,1,end);}
-  if(strcmp(m->argument,"!") == 0){
-    if(test_maillon_suivant(m->suivant, "(")){
-      printf("not");return creer_declaration(m->suivant,1,end);
+    if (strcmp(m->argument, " ") == 0)
+    {
+        return creer_declaration(m->suivant, after_egal, end);
     }
-    else{
-      if(m->suivant->lexeme == 'V'){
-        printf("not(!%s)", m->suivant->argument);
-      }else{
-        printf("not(%s)", m->suivant->argument);
-      }
-      
-      return creer_declaration(m->suivant->suivant,1,end);
+    if (strcmp(m->argument, "=") == 0)
+    {
+        printf(" = ref ");
+        return creer_declaration(m->suivant, 1, end);
     }
-  }
-  //--------------------  
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration(m->suivant,after_egal,end);};
-  return creer_declaration(m->suivant,after_egal,end);
+    if (m->lexeme == 'V' && after_egal == 1)
+    {
+        if (est_fonction(m))
+        {
+            return creer_declaration(appel_fonction(m, -1, ""), after_egal, end);
+        }
+        else
+        {
+            printf("(!%s)", m->argument);
+            return creer_declaration(m->suivant, after_egal, end);
+        }
+    }
+    // prise en charge des booleens
+    if (strcmp(m->argument, "==") == 0)
+    {
+        printf("=");
+        return creer_declaration(m->suivant, 1, end);
+    }
+    if (strcmp(m->argument, "!=") == 0)
+    {
+        printf("<>");
+        return creer_declaration(m->suivant, 1, end);
+    }
+    if (strcmp(m->argument, "!") == 0)
+    {
+        if (test_maillon_suivant(m->suivant, "("))
+        {
+            printf("not");
+            return creer_declaration(m->suivant, 1, end);
+        }
+        else
+        {
+            if (m->suivant->lexeme == 'V')
+            {
+                printf("not(!%s)", m->suivant->argument);
+            }
+            else
+            {
+                printf("not(%s)", m->suivant->argument);
+            }
+
+            return creer_declaration(m->suivant->suivant, 1, end);
+        }
+    }
+    //--------------------
+    if (strcmp(m->argument, " ") != 0)
+    {
+        printf("%s", m->argument);
+        return creer_declaration(m->suivant, after_egal, end);
+    };
+    return creer_declaration(m->suivant, after_egal, end);
 }
 
-maillon* creer_assignement(maillon* m, int after_egal, char* end){
-  if(m == NULL){return NULL;}
-  if(strcmp(m->argument,";") == 0){printf("%s\n", end);return m->suivant;}
-  if(strcmp(m->argument," ") == 0){return creer_assignement(m->suivant, after_egal, end);}
-  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement(m->suivant,1, end);}
-  if(m->lexeme == 'V' && after_egal == 1){
-    if(est_fonction(m)){
-      return creer_assignement(appel_fonction(m,-1,""),after_egal, end);
-    }else {printf("(!%s)", m->argument);return creer_assignement(m->suivant,after_egal, end);}}
-  //prise  en charge des booleens
-  if(strcmp(m->argument,"==") == 0){printf("=");return creer_assignement(m->suivant,1,end);}
-  if(strcmp(m->argument,"!=") == 0){printf("<>");return creer_assignement(m->suivant,1,end);}
-  if(strcmp(m->argument,"!") == 0){
-    if(test_maillon_suivant(m->suivant, "(")){
-      printf("not");return creer_assignement(m->suivant,1,end);
+maillon *creer_assignement(maillon *m, int after_egal, char *end)
+{
+    /*fonction qui traduit une affectaion de variable*/
+    if (m == NULL)
+    {
+        return NULL;
     }
-    else{
-      if(m->suivant->lexeme == 'V'){
-        printf("not(!%s)", m->suivant->argument);
-      }else{
-        printf("not(%s)", m->suivant->argument);
-      }
-      
-      return creer_assignement(m->suivant->suivant,1,end);
+    if (strcmp(m->argument, ";") == 0)
+    {
+        printf("%s\n", end);
+        return m->suivant;
     }
-  }
+    if (strcmp(m->argument, " ") == 0)
+    {
+        return creer_assignement(m->suivant, after_egal, end);
+    }
+    if (strcmp(m->argument, "=") == 0)
+    {
+        printf(" := ");
+        return creer_assignement(m->suivant, 1, end);
+    }
+    if (m->lexeme == 'V' && after_egal == 1)
+    {
+        if (est_fonction(m))
+        {
+            return creer_assignement(appel_fonction(m, -1, ""), after_egal, end);
+        }
+        else
+        {
+            printf("(!%s)", m->argument);
+            return creer_assignement(m->suivant, after_egal, end);
+        }
+    }
+    // prise  en charge des booleens
+    if (strcmp(m->argument, "==") == 0)
+    {
+        printf("=");
+        return creer_assignement(m->suivant, 1, end);
+    }
+    if (strcmp(m->argument, "!=") == 0)
+    {
+        printf("<>");
+        return creer_assignement(m->suivant, 1, end);
+    }
+    if (strcmp(m->argument, "!") == 0)
+    {
+        if (test_maillon_suivant(m->suivant, "("))
+        {
+            printf("not");
+            return creer_assignement(m->suivant, 1, end);
+        }
+        else
+        {
+            if (m->suivant->lexeme == 'V')
+            {
+                printf("not(!%s)", m->suivant->argument);
+            }
+            else
+            {
+                printf("not(%s)", m->suivant->argument);
+            }
 
-  printf("%s", m->argument);
-  return creer_assignement(m->suivant, after_egal, end);
+            return creer_assignement(m->suivant->suivant, 1, end);
+        }
+    }
+
+    printf("%s", m->argument);
+    return creer_assignement(m->suivant, after_egal, end);
 }
 
 // typecom a  modifier : reconnaitre les commentaire  // et /**/ pour les \n
 maillon *creer_commentaire(maillon *m, int typecom)
 {
+    /*fonction qui traduit un commentaire (typecom = 0 pour les commentaires // et typecom = 0 pour les commentaires /**./)*/
     if (typecom == 0)
     {
         printf("(*%s*)\n", m->argument);
@@ -206,6 +267,7 @@ maillon *creer_commentaire(maillon *m, int typecom)
 
 maillon *return_fonction(maillon *m)
 {
+    /*fonction qui  traduit un return*/
     if (strcmp(m->argument, ";") == 0)
     {
         printf(";\n");
@@ -238,6 +300,7 @@ maillon *return_fonction(maillon *m)
 
 maillon *printf_(maillon *m, char *end)
 {
+    /*fonction qui  traduit un printf*/
     int parent_ouv = 1;
     int parent_ferm = 0;
     bool first_parent = true;
@@ -281,9 +344,9 @@ maillon *printf_(maillon *m, char *end)
             printf(" ");
         }
         else if (m->lexeme == 'V' && est_fonction(m))
-        {   
+        {
             printf("(");
-            m=appel_fonction(m, -1, ")");
+            m = appel_fonction(m, -1, ")");
             continue;
         }
         else if (m->lexeme == 'V')
@@ -307,7 +370,9 @@ maillon *printf_(maillon *m, char *end)
 
 maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accolades, char *end)
 {
-    // printf("|%d|",type_condition);
+    /*fonction qui traduit les if(type_condition=0), else(type_condition=1), while(type_condition=2) et for(type_condition=3)*/
+    
+    //boucles FOR
     if (type_condition == 3 && !dans_accolades)
     {
         printf("for ");
@@ -351,7 +416,8 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             }
             else
             {
-                if(after_egal){
+                if (after_egal)
+                {
                     printf("%s", m->argument);
                 }
                 m = m->suivant;
@@ -433,6 +499,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
         printf(" done%s\n", end);
         return m;
     }
+    //IF, ELSE et boucles WHILE
     else if (!dans_accolades)
     {
         bool else_if = false;
@@ -442,21 +509,28 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             {
                 printf("<>");
             }
-            else if(strcmp(m->argument,"==") == 0)
+            else if (strcmp(m->argument, "==") == 0)
             {
                 printf("=");
             }
-            else if(strcmp(m->argument,"!") == 0){
-                if(test_maillon_suivant(m->suivant, "(")){
-                printf("not");return creer_assignement(m->suivant,1,end);
+            else if (strcmp(m->argument, "!") == 0)
+            {
+                if (test_maillon_suivant(m->suivant, "("))
+                {
+                    printf("not");
+                    return creer_assignement(m->suivant, 1, end);
                 }
-                else{
-                    if(m->suivant->lexeme == 'V'){
+                else
+                {
+                    if (m->suivant->lexeme == 'V')
+                    {
                         printf("not(!%s)", m->suivant->argument);
-                    }else{
+                    }
+                    else
+                    {
                         printf("not(%s)", m->suivant->argument);
                     }
-                    m=m->suivant;//car on a print 2 maillons
+                    m = m->suivant; // car on a print 2 maillons
                 }
             }
             else if (strcmp(m->argument, "if") == 0)
@@ -497,6 +571,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             return m;
         }
     }
+    //traduit l'interieur des accolades
     else
     {
         if (m == NULL)
@@ -527,7 +602,6 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
                 return parcours_conditionnelle(creer_assignement(m, 0, ";"), type_condition, dans_accolades, end);
             }
         }
-        //  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
         else if (m->lexeme == 'C')
         {
             return parcours_conditionnelle(creer_commentaire(m, 0), type_condition, dans_accolades, end);
@@ -582,6 +656,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
 
 maillon *parcours_fonction(maillon *m)
 {
+    /*Fonction qui traduit l'interieur des accolades d'une fonction*/
     if (m == NULL)
     {
         return NULL;
@@ -659,12 +734,13 @@ maillon *parcours_fonction(maillon *m)
 
 maillon *creer_fonction(maillon *m)
 {
+    /*Fonction qui traduit la declaration d'une fonction*/
     if (m == NULL)
     {
         return NULL;
     }
     bool is_main = false;
-    bool nom_fct = true;
+    bool avant_nom_fct = true;
     while (strcmp(m->argument, "{") != 0)
     {
         if (strcmp(m->argument, "main") == 0)
@@ -673,10 +749,10 @@ maillon *creer_fonction(maillon *m)
         }
         else if (m->lexeme == 'V' && !is_main)
         {
-            if (nom_fct)
+            if (avant_nom_fct)
             {
                 printf("let %s", m->argument);
-                nom_fct = false;
+                avant_nom_fct = false;
             }
             else
             {
@@ -703,6 +779,7 @@ maillon *creer_fonction(maillon *m)
 
 void parcours(maillon *m)
 {
+    /*Fonction qui parcours la liste chainee afin de tout traduire*/
     if (m == NULL)
     {
         return;
