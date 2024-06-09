@@ -6,23 +6,19 @@ int g(int i, int j){
 }
 
 int main(){
-
+    printf("UXU %d", funct(4, 5));
     int i=0;
     printf("%dtest", i);
     while(i != 4){
         i = i+1;
+        if(i==3){
+            printf("%dtest", i);
+        }
     }
     if(i==3){
         printf("%dtest", i);
     }
-
 }
-int main(){
-
 int funct(int i, int j){
     return i+j;
-}
-
-printf("UXU %d", funct(4, 5));
-
 }
