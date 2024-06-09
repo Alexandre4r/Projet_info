@@ -66,7 +66,7 @@ bool est_fonction(maillon* m){
   return est_fonction(m->suivant);
 }
 
-maillon *appel_fonction(maillon *m, int parentheses, char *end)
+maillon* appel_fonction(maillon *m, int parentheses, char *end)
 {
     if (m == NULL)
     {
@@ -282,7 +282,7 @@ maillon *printf_(maillon *m, char *end)
         }
         else if (m->lexeme == 'V' && est_fonction(m))
         {
-            printf("%s", m->argument);
+            printf("(%s)", m->argument);
         }
         else if (m->lexeme == 'V')
         {
