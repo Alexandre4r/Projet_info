@@ -556,7 +556,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             }
             else if (strcmp(m->argument, "for") == 0)
             {
-                return parcours_fonction(parcours_conditionnelle(m, 3, false, ";"));
+                return parcours_conditionnelle(parcours_conditionnelle(m, 3, false, ";"), type_condition, dans_accolades, end);
             }
 
             else
