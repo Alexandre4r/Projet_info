@@ -308,7 +308,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
     // printf("|%d|",type_condition);
     if (type_condition == 3 && !dans_accolades)
     {
-        printf("For ");
+        printf("for ");
         char *iterateur;
         maillon *condition = NULL;
         bool after_egal = false;
@@ -349,7 +349,9 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             }
             else
             {
-                printf("%s", m->argument);
+                if(after_egal){
+                    printf("%s", m->argument);
+                }
                 m = m->suivant;
             }
         }
@@ -416,11 +418,11 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
         {
             if (pas == -1)
             {
-                printf("-1");
+                printf("+1");
             }
             else if (pas == 1)
             {
-                printf("+1");
+                printf("-1");
             }
         }
         m = toReturn->suivant;
