@@ -6,13 +6,16 @@ int g(int i, int j){
 }
 
 int main(){
-    printf("UXU %d", funct(4, 5));
+    printf("UXU %d", g(4, 5));
     int i=0;
     printf("%dtest", i);
     while(i != 4){
         i = i+1;
         if(i==3){
-            printf("%dtest", i);
+            for(int j=0;j<=10;j=j+1){
+                printf("%dtest", i);
+            }
+            
         }
     }
     if(i==3){
@@ -25,4 +28,4 @@ int funct(int i, int j){
     return i+j;
 }
 /*erika miam*/
-/*Test*/
+/*Test****/

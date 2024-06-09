@@ -139,7 +139,7 @@ maillon* lexeur (FILE* fichier){
                 }else if(d == '/' && c == '*'){
                     c = fgetc(fichier);
                     char e = fgetc(fichier);
-                    while (c!='*' && e!= '/' && c != EOF){
+                    while (c!='*' || e!= '/' && c != EOF){
                         buffer[len_buffer] = c;
                         len_buffer++;
                         c = e;
