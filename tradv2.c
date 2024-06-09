@@ -57,7 +57,13 @@ bool est_fonction(maillon* m){
 maillon* creer_declaration(maillon* m  ,int after_egal /*0 si avantle =, 1 si apres*/){
   if(m == NULL){return NULL;};
   if(m->lexeme == 'T'){printf("let ");return creer_declaration(m->suivant,after_egal);};
-  if(strcmp(m->argument,";") == 0){printf(";;\n");return m->suivant;};
+  if(strcmp(m->argument,";") == 0){
+    if(m->suivant->suivant != NULL){
+         printf(" in\n");return m->suivant;
+      }else{
+        printf(";;\n");return m->suivant;
+      }
+    };
   if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant,after_egal);};
   if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration(m->suivant,1);};
   if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration(m->suivant,after_egal);};
@@ -158,50 +164,46 @@ maillon* creer_fonction(maillon* m){
 
 
 maillon* printf_(maillon* m){
-  int parent_ouv = 0;
+  int parent_ouv = 1;
   int parent_ferm = 0;
-  int nb_guimmets = 0; 
-  if(m == NULL){return NULL};
-  while(strcmp(m->argument,")") != 0 || parent_ouvre != parent_ferm){
+  bool first_parent = true;
+  if(m == NULL){return NULL;}
+
+  while(parent_ferm != parent_ouv){
 
      if(strcmp(m->argument, "printf") == 0){
       printf("Printf.printf");
     }
-
     //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
-    else if(strcmp(m->argument,"(") == 0 && parent_ouv == 0){printf(" ");parent_ouv = parent_ouv+1;}
-    else if(strcmp(m->argument,"(") == 0 && parent_ouv != 0){
-      parent_ouv = parent_ouv+1;
+    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
+    else if((strcmp(m->argument, "(") == 0)){
+      parent_ouv += 1;
       printf("(");
     }
 
-    else if(strcmp(m->argument,")") == 0){
+    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
       parent_ferm = parent_ferm+1;
+    }
+    else if(strcmp(m->argument,")") == 0){
       printf(")");
+      parent_ferm = parent_ferm+1;
     }
 
     //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
-    else if((m->argument) == '"'){
-      printf("%c", '"');
-      nb_guimmets = nb_guimmets +1;
-    }
-    else if((m->argument) == ',' && nb_guimmets % 2 == 0){
+    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
       printf(" ");
-    }else if((m->argument) == ',' && nb_guimmets % 2 != 0){
-      printf("%c", ',');
     }
-
     else if(m->lexeme == 'V'){
       printf("!%s", m->argument);
     }else{
       printf("%s", m->argument);
     }
-
     m = m->suivant;
+
   }
- 
-  printf(";;");
-  return m;
+
+  printf(";;\n");
+  return m->suivant;
 
 }
 
@@ -212,19 +214,20 @@ void parcours(maillon* m){
     if(est_fonction(m)){
       return parcours(creer_fonction(m));
     }else{
-    return parcours(creer_declaration(m));}
-  else if(m->lexeme == 'V'){return parcours(creer_assignement(m));}
-  else if(m->lexeme == 'M'){
-    if(strcmp(m->argument,"printf") == 0){
-      return parcous(printf_(m)); //Fonction Printf
+      return parcours(creer_declaration(m, 0));
     }
   }
-  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant));}
-    return parcours(creer_declaration(m, 0));}
+  else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
+  else if(m->lexeme == 'M'){
+    if(strcmp(m->argument,"printf") == 0){
+      return parcours(printf_(m)); //Fonction Printf
+    }
+  }
+  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant, 0));}
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
   else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
-  else{return parcours(m->suivant);};
+  else{return parcours(m->suivant);}
 }
 
 

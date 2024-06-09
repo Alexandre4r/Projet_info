@@ -38,8 +38,8 @@ void libere_liste (maillon* debut){
 
 // Ici on définit des lexèmes qui nous intéressent. Si vous en rajoutez, pensez à changer la taille des tableaux.
 
-const char ponctuation[] = {'(', ')', '{', '}', ' ', '\n', ';'};
-const int len_ponctuation = 7;
+const char ponctuation[] = {'(', ')', '{', '}', ' ', '\n', ';', ','};
+const int len_ponctuation = 8;
 const char* type[] = {"bool", "int", "void"};
 const int len_type = 3; 
 const char* motcle[] = {"while", "printf"};
