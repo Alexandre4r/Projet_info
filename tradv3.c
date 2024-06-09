@@ -47,48 +47,6 @@ void imprim(maillon* m){
   }
 }
 
-maillon* printf_(maillon* m, char* end){
-  int parent_ouv = 1;
-  int parent_ferm = 0;
-  bool first_parent = true;
-  if(m == NULL){return NULL;}
-
-  while(parent_ferm != parent_ouv){
-
-     if(strcmp(m->argument, "printf") == 0){
-      printf("Printf.printf");
-    }
-    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
-    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
-    else if((strcmp(m->argument, "(") == 0)){
-      parent_ouv += 1;
-      printf("(");
-    }
-
-    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
-      parent_ferm = parent_ferm+1;
-    }
-    else if(strcmp(m->argument,")") == 0){
-      printf(")");
-      parent_ferm = parent_ferm+1;
-    }
-
-    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
-    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
-      printf(" ");
-    }
-    else if(m->lexeme == 'V'){
-      printf("!%s", m->argument);
-    }else{
-      printf("%s", m->argument);
-    }
-    m = m->suivant;
-  }
-
-  printf("%s\n", end);
-  return m->suivant;
-
-}
 
 bool est_fonction(maillon* m){
   if(m == NULL){return NULL;};
@@ -167,6 +125,55 @@ maillon* return_fonction(maillon* m){
   printf("%s", m->argument);
   return return_fonction(m->suivant);
 }
+
+ maillon* printf_(maillon* m, char* end){
+  int parent_ouv = 1;
+  int parent_ferm = 0;
+  bool first_parent = true;
+  if(m == NULL){return NULL;}
+
+  while(parent_ferm != parent_ouv){
+
+     if(strcmp(m->argument, "printf") == 0){
+      printf("Printf.printf");
+    }
+    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
+    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
+    else if((strcmp(m->argument, "(") == 0)){
+      parent_ouv += 1;
+      printf("(");
+    }
+    //On incrémente les compteurs de parenthèses et on vérfie si c'est la dérnière parenthèse 
+    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
+      parent_ferm = parent_ferm+1;
+    }
+    else if(strcmp(m->argument,")") == 0){
+      printf(")");
+      parent_ferm = parent_ferm+1;
+    }
+
+    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
+    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
+      printf(" ");
+    }
+    //On vérifie si l'argument est une fonction ou une variable pour pouvoir mettre les "!"
+    else if(m->lexeme == 'V' && est_fonction(m) == true){
+      printf("%s", m->argument);
+    }
+    else if(m->lexeme == 'V'){
+      printf("!%s", m->argument);
+    }else{
+      printf("%s", m->argument);
+    }
+    m = m->suivant;
+  }
+
+  printf("%s\n", end);
+  return m->suivant;
+
+}
+
+
 maillon* parcours_fonction(maillon* m){
   if(m == NULL){return NULL;}
   else if(strcmp(m->argument,"}") == 0){
@@ -314,8 +321,11 @@ void parcours(maillon* m){
 }
 
 int main(){
+  //char fichier_a_traduire[255];
+  //printf("Quel fichier C voulez-vous traduire ? : ");
+  //scanf("%254s" , &fichier_a_traduire);
   FILE* fichierML = fopen("trad.ml", "r");
-  FILE* fichierC = fopen("fichier.c", "r");
+  FILE* fichierC = fopen(/*fichier_a_traduire */"fichier.c", "r");
   maillon* liste = lexeur(fichierC);
   imprim(liste);
   parcours(liste);
