@@ -90,37 +90,27 @@ maillon* creer_commentaire(maillon* m, int typecom){
 }
 
 
-maillon* creer_assignement_fonction(maillon* m){
+maillon* creer_assignement_fonction(maillon* m, int after_egal){
   if(m == NULL){return NULL;};
   if(strcmp(m->argument,";") == 0){printf(";\n");return m->suivant;};
-  if(strcmp(m->argument,"=") == 0){printf(":= ");return creer_assignement_fonction(m->suivant);};
-  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant);};
-  if(m->lexeme=='V'){printf("!%s ", m->argument);return creer_assignement_fonction(m->suivant);}
+  if(strcmp(m->argument," ") == 0){return creer_assignement_fonction(m->suivant, after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" := ");return creer_assignement_fonction(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal == 1){printf("!%s", m->argument);return creer_assignement_fonction(m->suivant,after_egal);};
   printf("%s ", m->argument);
-  return creer_assignement_fonction(m->suivant);
+  return creer_assignement_fonction(m->suivant, after_egal);
 }
 
-maillon* creer_declaration_fonction(maillon* m){
-  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
+maillon* creer_declaration_fonction(maillon* m,int after_egal){
   if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
+  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant,after_egal);};
   if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
-  return creer_declaration_fonction(m->suivant);
+  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant,after_egal);};
+  if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration_fonction(m->suivant,1);};
+  if(m->lexeme == 'V' && after_egal ==  1){printf("!%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
+  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant,after_egal);};
+  return creer_declaration_fonction(m->suivant,after_egal);
 }
 
-maillon* return_fonction(maillon* m){
-  //printf("(%c, :'%s')",(m->lexeme), (m->argument));
-  if(m == NULL){return NULL;};
-  if(m->lexeme == 'T'){printf("let ");return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,";") == 0){printf(" in\n");return m->suivant;};
-  if(strcmp(m->argument," ") == 0){return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument,"=") == 0){printf(" = ref "); return creer_declaration_fonction(m->suivant);};
-  if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration_fonction(m->suivant);};
-  return creer_declaration_fonction(m->suivant);
-}
 
 maillon* parcours_fonction(maillon* m){
   if(m == NULL){return NULL;}
@@ -130,13 +120,14 @@ maillon* parcours_fonction(maillon* m){
     if(est_fonction(m)){
       return NULL;
     }else
-    return parcours_fonction(creer_declaration_fonction(m));}
-  else if(m->lexeme == 'V'){return parcours_fonction(creer_assignement_fonction(m));}
+    return parcours_fonction(creer_declaration_fonction(m,0));}
+  else if(m->lexeme == 'V'){return parcours_fonction(creer_assignement_fonction(m,0));}
 //  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
   else if(m->lexeme == 'C'){return parcours_fonction(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours_fonction(creer_commentaire(m, 1));} // commentaires  /**/
   else{return parcours_fonction(m->suivant);};
 }
+
 maillon* creer_fonction(maillon* m){
   if(m == NULL){return NULL;};
   bool is_main = false;
@@ -145,9 +136,10 @@ maillon* creer_fonction(maillon* m){
     if (strcmp(m->argument,"main") == 0){
       is_main = true;
     }
-    if(m->lexeme=='V'){
-      if (nom_fct){printf("let %s ", m->argument);nom_fct=false;}
-      else {printf("%s ", m->argument);}
+    else if(m->lexeme=='P' && !is_main && strcmp(m->argument," ") != 0){printf("%s", m->argument);}
+    else if(m->lexeme=='V' && !is_main){
+      if (nom_fct){printf("let %s", m->argument);nom_fct=false;}
+      else {printf("%s", m->argument);}
     }
     
     m = m->suivant;
@@ -166,6 +158,9 @@ maillon* creer_fonction(maillon* m){
 maillon* printf_(maillon* m){
   int parent_ouv = 1;
   int parent_ferm = 0;
+  int nb_guimmets = 0; 
+  if(m == NULL){return NULL;}
+  while(strcmp(m->argument,")") != 0 || parent_ouv != parent_ferm){
   bool first_parent = true;
   if(m == NULL){return NULL;}
 
@@ -214,16 +209,15 @@ void parcours(maillon* m){
     if(est_fonction(m)){
       return parcours(creer_fonction(m));
     }else{
-      return parcours(creer_declaration(m, 0));
-    }
+    return parcours(creer_declaration(m,0));}
   }
-  else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
+  else if(m->lexeme == 'V'){return parcours(creer_assignement(m,0));}
   else if(m->lexeme == 'M'){
     if(strcmp(m->argument,"printf") == 0){
       return parcours(printf_(m)); //Fonction Printf
     }
   }
-  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant, 0));}
+  else if(strcmp(m->argument,"/") == 0){return parcours(creer_commentaire(m->suivant,0));}
   else if(m->lexeme == 'V'){return parcours(creer_assignement(m, 0));}
   else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
