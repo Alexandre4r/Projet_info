@@ -360,8 +360,11 @@ void parcours(maillon* m){
 }
 
 int main(){
+  //char fichier_a_traduire[255];
+  //printf("Quel fichier C voulez-vous traduire ? : ");
+  //scanf("%254s" , &fichier_a_traduire);
   FILE* fichierML = fopen("trad.ml", "r");
-  FILE* fichierC = fopen("fichier.c", "r");
+  FILE* fichierC = fopen(/*fichier_a_traduire */"fichier.c", "r");
   maillon* liste = lexeur(fichierC);
   imprim(liste);
   parcours(liste);
