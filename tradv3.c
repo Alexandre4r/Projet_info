@@ -204,22 +204,115 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         printf(" end\n");
         return m;
     }
-    if (type_condition==1){
+    else if (type_condition==1){
         printf(" begin \n");
         m= parcours_conditionnelle(m,type_condition,true,end); 
         printf(" end\n");
         return m;
     }
-    if (type_condition==2){
+    else if (type_condition==2){
         printf(" do \n");
         m= parcours_conditionnelle(m,type_condition,true,end); 
         printf(" done%s\n",end);
         return m;
     }
-    else{
-        printf(" for \n");
-        m= parcours_conditionnelle(m,type_condition,true,end); 
-        printf(" done;;\n");
+    else if (type_condition==3){
+        /*
+        printf("For ");
+        char* iterateur;
+        maillon* condition = NULL;
+        bool after_egal = false;
+        bool strict = false;
+        int pas;
+        maillon* toReturn = NULL;
+        //On va au debut de la parenthese
+        while(m != NULL && strcmp(m->argument,"(") != 0){
+            m = m->suivant;
+        }
+        m = m->suivant;
+        //Initialisation
+        while(m != NULL && strcmp(m->argument,";") != 0){
+            if(strcmp(m->argument," ")==0){
+            m = m->suivant;
+            }
+            else if(m->lexeme == 'V'){
+            if(after_egal){
+                printf("(!%s)", m->argument);
+            }else{
+                iterateur = m->argument;
+                printf("%s", iterateur);
+            }
+            m = m ->suivant;
+            }
+            else if(m->lexeme  == 'E'){
+            after_egal = true;
+            printf(" = ");
+            m = m ->suivant;
+            }
+            else{
+            printf("%s", m->argument);
+            m = m ->suivant;
+            }
+            
+        }
+        //On cherche le pas, pour ca on stocke la partie condition pour etre capable d'y retourner et on va a la partie incrementation
+        m = m->suivant;
+        condition = m;
+        while(m != NULL && strcmp(m->argument,";") != 0){
+            m = m->suivant;
+        }
+        //incremenatation
+
+        while(m != NULL && strcmp(m->argument,"{") != 0){
+            if(strcmp(m->argument,"-") == 0){
+            pas = -1;
+            printf(" downto ");
+            }
+            else if(strcmp(m->argument,"+") == 0){
+            pas = 1;
+            printf(" to ");
+            }
+            m = m->suivant;
+        }
+        //on cherche maintenant la condition
+        toReturn = m;
+        m = condition;
+        while(strcmp(m->argument,";") != 0){
+            if(strcmp(m->argument," ") == 0){
+            m = m->suivant;
+            }
+            else if(strcmp(m->argument,"<") == 0 || strcmp(m->argument,">")==0){
+            strict = true;
+            m = m->suivant;
+            }
+            else if(strcmp(m->argument,"<=") == 0 || strcmp(m->argument,">=")==0){
+            m = m->suivant;
+            }
+            else if(strcmp(m->argument,iterateur) != 0){
+            if(m->lexeme == 'V'){
+                printf("(!%s)", m->argument);
+            }
+            else{
+                printf("%s", m->argument);
+            }
+            m = m->suivant;
+            }else{m = m->suivant;}
+            
+        }
+        //On rajoute maintenant +1 ou -1 en fonction de si l'egalitée est stricte et du pas
+        if(strict){
+            if(pas == -1){
+            printf("-1");
+            }
+            else if(pas == 1){
+            printf("+1");
+            }
+        }
+        m= toReturn->suivant;
+        */
+        m = parcours_conditionnelle(m,type_condition,true,end); 
+        printf(" done%s\n",end);
+        return m;
     }
   }
   else {
@@ -367,7 +460,7 @@ void parcours(maillon* m){
       return parcours(parcours_conditionnelle(m,2,false,";;")); 
     }
     else if(strcmp(m->argument,"for") == 0){
-        return parcours(m->suivant);
+        return parcours(parcours_conditionnelle(m,3,false,";;"));
         }
     else{return parcours(m->suivant);}
   }
