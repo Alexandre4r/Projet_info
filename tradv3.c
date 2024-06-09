@@ -4,6 +4,7 @@
 #include <string.h>
 #include "lexer.h" //importe les fonctions du fichier lexer.c
 
+FILE *fichierML;
 void imprim(maillon *m)
 {
     printf("%c :%s \n", (m->lexeme), (m->argument));
@@ -60,17 +61,17 @@ maillon *appel_fonction(maillon *m, int parentheses, char *end)
     }
     if (parentheses == 0)
     {
-        printf("))%s", end);
+        fprintf(fichierML,"))%s", end);
         return m;
     }
     if (strcmp(m->argument, "(") == 0 && parentheses == -1)
     {
         if (strcmp(m->suivant->argument, ")") == 0)
         {
-            printf("()");
+            fprintf(fichierML,"()");
             return m->suivant;
         } // cas fonction sans arguments
-        printf("(ref (");
+        fprintf(fichierML,"(ref (");
         return appel_fonction(m->suivant, 1, end);
     }
     if (strcmp(m->argument, "(") == 0 && parentheses != -1)
@@ -83,20 +84,20 @@ maillon *appel_fonction(maillon *m, int parentheses, char *end)
     }
     if (strcmp(m->argument, ",") == 0)
     {
-        printf("), ref (");
+        fprintf(fichierML,"), ref (");
         return appel_fonction(m->suivant, parentheses, end);
     }
     if (m->lexeme == 'V' && parentheses == -1)
     {
-        printf("%s", m->argument);
+        fprintf(fichierML,"%s", m->argument);
         return appel_fonction(m->suivant, parentheses, end);
     }
     if (m->lexeme == 'V' && parentheses != -1)
     {
-        printf("(!%s)", m->argument);
+        fprintf(fichierML,"(!%s)", m->argument);
         return appel_fonction(m->suivant, parentheses, end);
     }
-    printf("%s", m->argument);
+    fprintf(fichierML,"%s", m->argument);
     return appel_fonction(m->suivant, parentheses, end);
 }
 
@@ -109,12 +110,12 @@ maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apr
     }
     if (m->lexeme == 'T')
     {
-        printf("let ");
+        fprintf(fichierML,"let ");
         return creer_declaration(m->suivant, after_egal, end);
     }
     if (strcmp(m->argument, ";") == 0)
     {
-        printf("%s \n", end);
+        fprintf(fichierML,"%s \n", end);
         return m->suivant;
     }
     if (strcmp(m->argument, " ") == 0)
@@ -123,7 +124,7 @@ maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apr
     }
     if (strcmp(m->argument, "=") == 0)
     {
-        printf(" = ref ");
+        fprintf(fichierML," = ref ");
         return creer_declaration(m->suivant, 1, end);
     }
     if (m->lexeme == 'V' && after_egal == 1)
@@ -134,37 +135,37 @@ maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apr
         }
         else
         {
-            printf("(!%s)", m->argument);
+            fprintf(fichierML,"(!%s)", m->argument);
             return creer_declaration(m->suivant, after_egal, end);
         }
     }
     // prise en charge des booleens
     if (strcmp(m->argument, "==") == 0)
     {
-        printf("=");
+        fprintf(fichierML,"=");
         return creer_declaration(m->suivant, 1, end);
     }
     if (strcmp(m->argument, "!=") == 0)
     {
-        printf("<>");
+        fprintf(fichierML,"<>");
         return creer_declaration(m->suivant, 1, end);
     }
     if (strcmp(m->argument, "!") == 0)
     {
         if (test_maillon_suivant(m->suivant, "("))
         {
-            printf("not");
+            fprintf(fichierML,"not");
             return creer_declaration(m->suivant, 1, end);
         }
         else
         {
             if (m->suivant->lexeme == 'V')
             {
-                printf("not(!%s)", m->suivant->argument);
+                fprintf(fichierML,"not(!%s)", m->suivant->argument);
             }
             else
             {
-                printf("not(%s)", m->suivant->argument);
+                fprintf(fichierML,"not(%s)", m->suivant->argument);
             }
 
             return creer_declaration(m->suivant->suivant, 1, end);
@@ -173,7 +174,7 @@ maillon *creer_declaration(maillon *m, int after_egal /*0 si avantle =, 1 si apr
     //--------------------
     if (strcmp(m->argument, " ") != 0)
     {
-        printf("%s", m->argument);
+        fprintf(fichierML,"%s", m->argument);
         return creer_declaration(m->suivant, after_egal, end);
     };
     return creer_declaration(m->suivant, after_egal, end);
@@ -188,7 +189,7 @@ maillon *creer_assignement(maillon *m, int after_egal, char *end)
     }
     if (strcmp(m->argument, ";") == 0)
     {
-        printf("%s\n", end);
+        fprintf(fichierML,"%s\n", end);
         return m->suivant;
     }
     if (strcmp(m->argument, " ") == 0)
@@ -197,7 +198,7 @@ maillon *creer_assignement(maillon *m, int after_egal, char *end)
     }
     if (strcmp(m->argument, "=") == 0)
     {
-        printf(" := ");
+        fprintf(fichierML," := ");
         return creer_assignement(m->suivant, 1, end);
     }
     if (m->lexeme == 'V' && after_egal == 1)
@@ -208,44 +209,44 @@ maillon *creer_assignement(maillon *m, int after_egal, char *end)
         }
         else
         {
-            printf("(!%s)", m->argument);
+            fprintf(fichierML,"(!%s)", m->argument);
             return creer_assignement(m->suivant, after_egal, end);
         }
     }
     // prise  en charge des booleens
     if (strcmp(m->argument, "==") == 0)
     {
-        printf("=");
+        fprintf(fichierML,"=");
         return creer_assignement(m->suivant, 1, end);
     }
     if (strcmp(m->argument, "!=") == 0)
     {
-        printf("<>");
+        fprintf(fichierML,"<>");
         return creer_assignement(m->suivant, 1, end);
     }
     if (strcmp(m->argument, "!") == 0)
     {
         if (test_maillon_suivant(m->suivant, "("))
         {
-            printf("not");
+            fprintf(fichierML,"not");
             return creer_assignement(m->suivant, 1, end);
         }
         else
         {
             if (m->suivant->lexeme == 'V')
             {
-                printf("not(!%s)", m->suivant->argument);
+                fprintf(fichierML,"not(!%s)", m->suivant->argument);
             }
             else
             {
-                printf("not(%s)", m->suivant->argument);
+                fprintf(fichierML,"not(%s)", m->suivant->argument);
             }
 
             return creer_assignement(m->suivant->suivant, 1, end);
         }
     }
 
-    printf("%s", m->argument);
+    fprintf(fichierML,"%s", m->argument);
     return creer_assignement(m->suivant, after_egal, end);
 }
 
@@ -255,12 +256,12 @@ maillon *creer_commentaire(maillon *m, int typecom)
     /*fonction qui traduit un commentaire (typecom = 0 pour les commentaires // et typecom = 0 pour les commentaires /**./)*/
     if (typecom == 0)
     {
-        printf("(*%s*)\n", m->argument);
+        fprintf(fichierML,"(*%s*)\n", m->argument);
         return m->suivant;
     }
     else
     {
-        printf("(*%s*)", m->argument);
+        fprintf(fichierML,"(*%s*)", m->argument);
         return m->suivant;
     }
 }
@@ -270,7 +271,7 @@ maillon *return_fonction(maillon *m)
     /*fonction qui  traduit un return*/
     if (strcmp(m->argument, ";") == 0)
     {
-        printf(";\n");
+        fprintf(fichierML,";\n");
         return m->suivant;
     }
     if (m->lexeme == 'V')
@@ -281,7 +282,7 @@ maillon *return_fonction(maillon *m)
         }
         else
         {
-            printf("(!%s)", m->argument);
+            fprintf(fichierML,"(!%s)", m->argument);
             return return_fonction(m->suivant);
         }
     }
@@ -294,7 +295,7 @@ maillon *return_fonction(maillon *m)
     {
         return return_fonction(m->suivant);
     }
-    printf("%s", m->argument);
+    fprintf(fichierML,"%s", m->argument);
     return return_fonction(m->suivant);
 }
 
@@ -314,18 +315,18 @@ maillon *printf_(maillon *m, char *end)
 
         if (strcmp(m->argument, "printf") == 0)
         {
-            printf("Printf.printf");
+            fprintf(fichierML,"Printf.printf");
         }
         // On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
         else if ((strcmp(m->argument, "(") == 0) && first_parent == true)
         {
-            printf(" ");
+            fprintf(fichierML," ");
             first_parent = false;
         }
         else if ((strcmp(m->argument, "(") == 0))
         {
             parent_ouv += 1;
-            printf("(");
+            fprintf(fichierML,"(");
         }
 
         else if (strcmp(m->argument, ")") == 0 && parent_ferm == (parent_ouv - 1))
@@ -334,37 +335,37 @@ maillon *printf_(maillon *m, char *end)
         }
         else if (strcmp(m->argument, ")") == 0)
         {
-            printf(")");
+            fprintf(fichierML,")");
             parent_ferm = parent_ferm + 1;
         }
 
         // On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
         else if (strcmp((m->argument), ",") == 0 && m->lexeme == 'P')
         {
-            printf(" ");
+            fprintf(fichierML," ");
         }
         else if (m->lexeme == 'V' && est_fonction(m))
         {
-            printf("(");
+            fprintf(fichierML,"(");
             m = appel_fonction(m, -1, ")");
             continue;
         }
         else if (m->lexeme == 'V')
         {
-            printf("(!%s)", m->argument);
+            fprintf(fichierML,"(!%s)", m->argument);
         }
         else if (m->lexeme == 'A')
         {
-            printf("(*%s*)", m->argument);
+            fprintf(fichierML,"(*%s*)", m->argument);
         }
         else
         {
-            printf("%s", m->argument);
+            fprintf(fichierML,"%s", m->argument);
         }
         m = m->suivant;
     }
 
-    printf("%s\n", end);
+    fprintf(fichierML,"%s\n", end);
     return m->suivant;
 }
 
@@ -375,7 +376,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
     //boucles FOR
     if (type_condition == 3 && !dans_accolades)
     {
-        printf("for ");
+        fprintf(fichierML,"for ");
         char *iterateur;
         maillon *condition = NULL;
         bool after_egal = false;
@@ -399,26 +400,26 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             {
                 if (after_egal)
                 {
-                    printf("(!%s)", m->argument);
+                    fprintf(fichierML,"(!%s)", m->argument);
                 }
                 else
                 {
                     iterateur = m->argument;
-                    printf("%s", iterateur);
+                    fprintf(fichierML,"%s", iterateur);
                 }
                 m = m->suivant;
             }
             else if (m->lexeme == 'E')
             {
                 after_egal = true;
-                printf(" = ");
+                fprintf(fichierML," = ");
                 m = m->suivant;
             }
             else
             {
                 if (after_egal)
                 {
-                    printf("%s", m->argument);
+                    fprintf(fichierML,"%s", m->argument);
                 }
                 m = m->suivant;
             }
@@ -437,12 +438,12 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             if (strcmp(m->argument, "-") == 0)
             {
                 pas = -1;
-                printf(" downto ");
+                fprintf(fichierML," downto ");
             }
             else if (strcmp(m->argument, "+") == 0)
             {
                 pas = 1;
-                printf(" to ");
+                fprintf(fichierML," to ");
             }
             m = m->suivant;
         }
@@ -468,11 +469,11 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             {
                 if (m->lexeme == 'V')
                 {
-                    printf("(!%s)", m->argument);
+                    fprintf(fichierML,"(!%s)", m->argument);
                 }
                 else
                 {
-                    printf("%s", m->argument);
+                    fprintf(fichierML,"%s", m->argument);
                 }
                 m = m->suivant;
             }
@@ -486,17 +487,17 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
         {
             if (pas == -1)
             {
-                printf("+1");
+                fprintf(fichierML,"+1");
             }
             else if (pas == 1)
             {
-                printf("-1");
+                fprintf(fichierML,"-1");
             }
         }
         m = toReturn->suivant;
-        printf(" do\n");
+        fprintf(fichierML," do\n");
         m = parcours_conditionnelle(m, type_condition, true, end);
-        printf(" done%s\n", end);
+        fprintf(fichierML," done%s\n", end);
         return m;
     }
     //IF, ELSE et boucles WHILE
@@ -507,67 +508,67 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
         {
             if (strcmp(m->argument, "!=") == 0)
             {
-                printf("<>");
+                fprintf(fichierML,"<>");
             }
             else if (strcmp(m->argument, "==") == 0)
             {
-                printf("=");
+                fprintf(fichierML,"=");
             }
             else if (strcmp(m->argument, "!") == 0)
             {
                 if (test_maillon_suivant(m->suivant, "("))
                 {
-                    printf("not");
+                    fprintf(fichierML,"not");
                     return creer_assignement(m->suivant, 1, end);
                 }
                 else
                 {
                     if (m->suivant->lexeme == 'V')
                     {
-                        printf("not(!%s)", m->suivant->argument);
+                        fprintf(fichierML,"not(!%s)", m->suivant->argument);
                     }
                     else
                     {
-                        printf("not(%s)", m->suivant->argument);
+                        fprintf(fichierML,"not(%s)", m->suivant->argument);
                     }
                     m = m->suivant; // car on a print 2 maillons
                 }
             }
             else if (strcmp(m->argument, "if") == 0)
             {
-                printf("%s", m->argument);
+                fprintf(fichierML,"%s", m->argument);
                 else_if = true;
             }
 
             else if (m->lexeme == 'V')
             {
-                printf("(!%s)", m->argument);
+                fprintf(fichierML,"(!%s)", m->argument);
             }
             else
             {
-                printf("%s", m->argument);
+                fprintf(fichierML,"%s", m->argument);
             }
             m = m->suivant;
         }
         if (type_condition == 0 || else_if)
         {
-            printf(" then begin \n");
+            fprintf(fichierML," then begin \n");
             m = parcours_conditionnelle(m, type_condition, true, end);
-            printf(" end\n");
+            fprintf(fichierML," end\n");
             return m;
         }
         else if (type_condition == 1)
         {
-            printf(" begin \n");
+            fprintf(fichierML," begin \n");
             m = parcours_conditionnelle(m, type_condition, true, end);
-            printf(" end\n");
+            fprintf(fichierML," end\n");
             return m;
         }
         else if (type_condition == 2)
         {
-            printf(" do \n");
+            fprintf(fichierML," do \n");
             m = parcours_conditionnelle(m, type_condition, true, end);
-            printf(" done%s\n", end);
+            fprintf(fichierML," done%s\n", end);
             return m;
         }
     }
@@ -751,17 +752,17 @@ maillon *creer_fonction(maillon *m)
         {
             if (avant_nom_fct)
             {
-                printf("let %s", m->argument);
+                fprintf(fichierML,"let %s", m->argument);
                 avant_nom_fct = false;
             }
             else
             {
-                printf("%s", m->argument);
+                fprintf(fichierML,"%s", m->argument);
             }
         }
         else if (m->lexeme != 'T' && !is_main && strcmp(m->argument, " ") != 0)
         {
-            printf("%s", m->argument);
+            fprintf(fichierML,"%s", m->argument);
         }
 
         m = m->suivant;
@@ -771,9 +772,9 @@ maillon *creer_fonction(maillon *m)
         return m;
     }
     else
-        printf(" = \n");
+        fprintf(fichierML," = \n");
     m = parcours_fonction(m);
-    printf(";;\n");
+    fprintf(fichierML,";;\n");
     return m;
 }
 
@@ -858,7 +859,7 @@ void parcours(maillon *m)
 int main(int argc, char *argv[])
 {
     if(argc>=2){
-        FILE *fichierML = fopen(argv[2], "r");
+        fichierML = fopen(/*argv[2]*/"trad.ml", "w");
         FILE *fichierC = fopen(/*fichier_a_traduire */ argv[1], "r");
         maillon *liste = lexeur(fichierC);
         imprim(liste);
