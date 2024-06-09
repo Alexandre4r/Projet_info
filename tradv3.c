@@ -456,6 +456,7 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
                     }else{
                         printf("not(%s)", m->suivant->argument);
                     }
+                    m=m->suivant;//car on a print 2 maillons
                 }
             }
             else if (strcmp(m->argument, "if") == 0)
