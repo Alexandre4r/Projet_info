@@ -145,8 +145,6 @@ maillon* lexeur (FILE* fichier){
                         c = e;
                         e = fgetc(fichier);
                     }
-                    buffer[len_buffer] = c;
-                    len_buffer++;
                     ajoute_maillon_fin (&fin, 'C', cree_arg(buffer, len_buffer));
                     // 'A' pour indiquer un commentaire /* */
                     c = fgetc(fichier);
