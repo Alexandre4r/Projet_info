@@ -210,7 +210,7 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
     if (type_condition==2){
         printf(" do \n");
         m= parcours_conditionnelle(m,type_condition,true); 
-        printf("done;;\n");
+        printf("done\n");
         return m;
     }
     else{
