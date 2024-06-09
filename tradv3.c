@@ -178,7 +178,7 @@ maillon* printf_(maillon* m, char* end){
 
 }
 
-maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accolades){
+maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accolades,char* end){
   if (!dans_accolades){
     bool else_if = false;
     while(strcmp(m->argument,"{") != 0){
@@ -186,7 +186,7 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
             printf("<>");
         }
         else if(strcmp(m->argument,"if") == 0){
-            printf("(%s)", m->argument);
+            printf("%s", m->argument);
             else_if = true;
         }
 
@@ -199,26 +199,26 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         m = m->suivant;
     }
     if (type_condition==0 || else_if){
-        printf("then begin \n");
-        m= parcours_conditionnelle(m,type_condition,true); 
-        printf("end\n");
+        printf(" then begin \n");
+        m= parcours_conditionnelle(m,type_condition,true,end); 
+        printf(" end\n");
         return m;
     }
     if (type_condition==1){
-        printf("begin \n");
-        m= parcours_conditionnelle(m,type_condition,true); 
-        printf("end\n");
+        printf(" begin \n");
+        m= parcours_conditionnelle(m,type_condition,true,end); 
+        printf(" end\n");
         return m;
     }
     if (type_condition==2){
         printf(" do \n");
-        m= parcours_conditionnelle(m,type_condition,true); 
-        printf("done\n");
+        m= parcours_conditionnelle(m,type_condition,true,end); 
+        printf(" done%s\n",end);
         return m;
     }
     else{
         printf(" for \n");
-        m= parcours_conditionnelle(m,type_condition,true); 
+        m= parcours_conditionnelle(m,type_condition,true,end); 
         printf(" done;;\n");
     }
   }
@@ -230,38 +230,38 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         if(est_fonction(m)){
         return NULL;
         }else
-        return parcours_conditionnelle(creer_declaration(m,0,";\n"),type_condition,dans_accolades);}
+        return parcours_conditionnelle(creer_declaration(m,0,";\n"),type_condition,dans_accolades,end);}
     else if(m->lexeme == 'V'){    
         if(est_fonction(m)){
-        return parcours_conditionnelle(appel_fonction(m,-1,";\n"),type_condition,dans_accolades);
+        return parcours_conditionnelle(appel_fonction(m,-1,";\n"),type_condition,dans_accolades,end);
         }else {
-            return parcours_conditionnelle(creer_assignement(m, 0,";"),type_condition,dans_accolades);}}
+            return parcours_conditionnelle(creer_assignement(m, 0,";"),type_condition,dans_accolades,end);}}
     //  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
-    else if(m->lexeme == 'C'){return parcours_conditionnelle(creer_commentaire(m, 0),type_condition,dans_accolades);} // commentaires //
-    else if(m->lexeme == 'A'){return parcours_conditionnelle(creer_commentaire(m, 1),type_condition,dans_accolades);} // commentaires  /**/
+    else if(m->lexeme == 'C'){return parcours_conditionnelle(creer_commentaire(m, 0),type_condition,dans_accolades,end);} // commentaires //
+    else if(m->lexeme == 'A'){return parcours_conditionnelle(creer_commentaire(m, 1),type_condition,dans_accolades,end);} // commentaires  /**/
     else if(m->lexeme == 'M'){
         if(strcmp(m->argument,"return") == 0){
-        return parcours_conditionnelle(return_fonction(m),type_condition,dans_accolades); 
+        return parcours_conditionnelle(return_fonction(m),type_condition,dans_accolades,end); 
         }
         if(strcmp(m->argument, "printf") == 0){
-        return parcours_conditionnelle(printf_(m, ";"),type_condition,dans_accolades); //Fonction Printf
+        return parcours_conditionnelle(printf_(m, ";"),type_condition,dans_accolades,end); //Fonction Printf
         }
         else if(strcmp(m->argument,"return") == 0){
-        return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);
+        return parcours_conditionnelle(m->suivant,type_condition,dans_accolades,end);
         }
         else if(strcmp(m->argument,"if") == 0){
-        return parcours_conditionnelle(parcours_conditionnelle(m,0,false),type_condition,dans_accolades);
+        return parcours_conditionnelle(parcours_conditionnelle(m,0,false,""),type_condition,dans_accolades,end);
         }
         else if(strcmp(m->argument,"else") == 0){
-        return parcours_conditionnelle(parcours_conditionnelle(m,1,false),type_condition,dans_accolades);
+        return parcours_conditionnelle(parcours_conditionnelle(m,1,false,""),type_condition,dans_accolades,end);
         }
         else if(strcmp(m->argument,"while") == 0){
-        return parcours_conditionnelle(parcours_conditionnelle(m,2,false),type_condition,dans_accolades); 
+        return parcours_conditionnelle(parcours_conditionnelle(m,2,false,";"),type_condition,dans_accolades,end); 
         }
-        else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);}
+        else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades,end);}
     }
 
-    else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);};
+    else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades,end);};
   }
 }
 
@@ -286,9 +286,23 @@ maillon* parcours_fonction(maillon* m){
     if(strcmp(m->argument,"return") == 0){
       return parcours_fonction(return_fonction(m)); 
     }
-    if(strcmp(m->argument, "printf") == 0){
+    else if(strcmp(m->argument, "printf") == 0){
       return parcours_fonction(printf_(m, ";")); //Fonction Printf
     }
+    else if(strcmp(m->argument,"if") == 0){
+      return parcours_fonction(parcours_conditionnelle(m,0,false,""));
+    }
+    else if(strcmp(m->argument,"else") == 0){
+      return parcours_fonction(parcours_conditionnelle(m,1,false,""));
+    }
+    else if(strcmp(m->argument,"while") == 0){
+      return parcours_fonction(parcours_conditionnelle(m,2,false,";")); 
+    }
+    else if(strcmp(m->argument,"for") == 0){
+        return parcours_fonction(m->suivant);
+        }
+    else{return parcours_fonction(m->suivant);}
+
   }
 
   else{return parcours_fonction(m->suivant);};
@@ -344,13 +358,13 @@ void parcours(maillon* m){
       return parcours(m->suivant);
     }
     else if(strcmp(m->argument,"if") == 0){
-      return parcours(parcours_conditionnelle(m,0,false));
+      return parcours(parcours_conditionnelle(m,0,false,""));
     }
     else if(strcmp(m->argument,"else") == 0){
-      return parcours(parcours_conditionnelle(m,1,false));
+      return parcours(parcours_conditionnelle(m,1,false,""));
     }
     else if(strcmp(m->argument,"while") == 0){
-      return parcours(parcours_conditionnelle(m,2,false)); 
+      return parcours(parcours_conditionnelle(m,2,false,";;")); 
     }
     else if(strcmp(m->argument,"for") == 0){
         return parcours(m->suivant);
