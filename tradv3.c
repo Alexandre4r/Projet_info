@@ -74,7 +74,9 @@ maillon* appel_fonction(maillon* m, int parentheses, char* end){
 maillon* creer_declaration(maillon* m  ,int after_egal /*0 si avantle =, 1 si apres*/, char* end){
   if(m == NULL){return NULL;}
   if(m->lexeme == 'T'){printf("let ");return creer_declaration(m->suivant,after_egal,end);}
-  if(strcmp(m->argument,";") == 0){printf("%s \n",end);return m->suivant;}
+  if(strcmp(m->argument,";") == 0){
+    printf("%s \n",end);return m->suivant;
+    }
   if(strcmp(m->argument," ") == 0){return creer_declaration(m->suivant,after_egal,end);}
   if(strcmp(m->argument,"=") == 0){printf(" = ref ");return creer_declaration(m->suivant,1,end);}
   if(m->lexeme == 'V' && after_egal ==  1){
@@ -222,6 +224,51 @@ maillon* creer_conditionnelle(maillon* m, int if_or_while){
   }
   return m;
 }
+
+maillon* printf_(maillon* m){
+  int parent_ouv = 1;
+  int parent_ferm = 0;
+  bool first_parent = true;
+  if(m == NULL){return NULL;}
+
+  while(parent_ferm != parent_ouv){
+
+     if(strcmp(m->argument, "printf") == 0){
+      printf("Printf.printf");
+    }
+    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
+    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
+    else if((strcmp(m->argument, "(") == 0)){
+      parent_ouv += 1;
+      printf("(");
+    }
+
+    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
+      parent_ferm = parent_ferm+1;
+    }
+    else if(strcmp(m->argument,")") == 0){
+      printf(")");
+      parent_ferm = parent_ferm+1;
+    }
+
+    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
+    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
+      printf(" ");
+    }
+    else if(m->lexeme == 'V'){
+      printf("!%s", m->argument);
+    }else{
+      printf("%s", m->argument);
+    }
+    m = m->suivant;
+
+  }
+
+  printf(";;\n");
+  return m->suivant;
+
+}
+
 void parcours(maillon* m){
   if(m == NULL){return;}
   else if(m->lexeme =='D'){return parcours(m->suivant);}
@@ -238,6 +285,9 @@ void parcours(maillon* m){
   else if(m->lexeme == 'C'){return parcours(creer_commentaire(m, 0));} // commentaires //
   else if(m->lexeme == 'A'){return parcours(creer_commentaire(m, 1));} // commentaires  /**/
   else if(m->lexeme == 'M'){
+    if(strcmp(m->argument,"printf") == 0){
+      return parcours(printf_(m)); //Fonction Printf
+    }
     if(strcmp(m->argument,"return") == 0){
       return parcours(m->suivant);
     }

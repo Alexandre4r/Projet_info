@@ -158,9 +158,6 @@ maillon* creer_fonction(maillon* m){
 maillon* printf_(maillon* m){
   int parent_ouv = 1;
   int parent_ferm = 0;
-  int nb_guimmets = 0; 
-  if(m == NULL){return NULL;}
-  while(strcmp(m->argument,")") != 0 || parent_ouv != parent_ferm){
   bool first_parent = true;
   if(m == NULL){return NULL;}
 
