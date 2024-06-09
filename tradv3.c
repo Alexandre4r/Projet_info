@@ -21,7 +21,7 @@ bool test_maillon_suivant(maillon *m, char *s)
     while (strcmp(m->argument, " ") == 0)
     {
         m = m->suivant;
-        printf("/%s/", m->argument);
+
     }
     return (strcmp(m->argument, s) == 0);
 }
@@ -858,8 +858,19 @@ void parcours(maillon *m)
 
 int main(int argc, char *argv[])
 {
-    if(argc>=2){
-        fichierML = fopen(/*argv[2]*/"trad.ml", "w");
+    if(argc>1){
+        //Creer le nom de fichier en .ml
+        int len  = strlen(argv[1]);
+        char fichierml[len + 1];
+        for(int i=0; i<len -1; i+=1){
+            fichierml[i]  = argv[1][i];
+        }
+        fichierml[len-1] =  'm';
+        fichierml[len] =  'l';
+        fichierml[len+1] =  '\0';
+
+
+        fichierML = fopen(/*fichier traduit*/fichierml, "w");
         FILE *fichierC = fopen(/*fichier_a_traduire */ argv[1], "r");
         maillon *liste = lexeur(fichierC);
         imprim(liste);
