@@ -164,6 +164,9 @@ maillon* printf_(maillon* m, char* end){
     else if(m->lexeme == 'V'){
       printf("(!%s)", m->argument);
     }
+    else if(m->lexeme == 'A'){
+      printf("(*%s*)", m->argument);
+    }
     else{
       printf("%s", m->argument);
     }
