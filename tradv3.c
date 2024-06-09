@@ -281,8 +281,10 @@ maillon *printf_(maillon *m, char *end)
             printf(" ");
         }
         else if (m->lexeme == 'V' && est_fonction(m))
-        {
-            printf("(%s)", m->argument);
+        {   
+            printf("(");
+            m=appel_fonction(m, -1, ")");
+            continue;
         }
         else if (m->lexeme == 'V')
         {
