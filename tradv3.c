@@ -83,7 +83,6 @@ maillon* printf_(maillon* m, char* end){
       printf("%s", m->argument);
     }
     m = m->suivant;
-
   }
 
   printf("%s\n", end);
@@ -258,6 +257,9 @@ maillon* creer_conditionnelle(maillon* m, int if_or_while){
     if(strcmp(m->argument,"!=") == 0){
         printf("<>");
     }
+    else if(m->lexeme=='V'){
+        printf("!%s", m->argument);
+    }
     else {
     printf("%s", m->argument);
     }
@@ -272,7 +274,6 @@ maillon* creer_conditionnelle(maillon* m, int if_or_while){
     printf(" then begin \n");
     m= parcours_conditionnelle(m); 
     printf(" end;;\n");
-  
   }
   return m;
 }
