@@ -17,6 +17,8 @@ int main(){
     }
     if(i==3){
         printf("%dtest", i);
+    } else {
+        i=i+1;
     }
 }
 int funct(int i, int j){

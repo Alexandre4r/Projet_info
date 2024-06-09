@@ -177,10 +177,16 @@ maillon* printf_(maillon* m, char* end){
 
 maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accolades){
   if (!dans_accolades){
+    bool else_if = false;
     while(strcmp(m->argument,"{") != 0){
         if(strcmp(m->argument,"!=") == 0){
             printf("<>");
         }
+        else if(strcmp(m->argument,"if") == 0){
+            printf("(%s)", m->argument);
+            else_if = true;
+        }
+
         else if(m->lexeme=='V'){
             printf("(!%s)", m->argument);
         }
@@ -189,13 +195,19 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         }
         m = m->suivant;
     }
-    if (type_condition==0){
-        printf(" then begin \n");
+    if (type_condition==0 || else_if){
+        printf("then begin \n");
         m= parcours_conditionnelle(m,type_condition,true); 
-        printf(" end;;\n");
+        printf("end\n");
         return m;
     }
     if (type_condition==1){
+        printf("begin \n");
+        m= parcours_conditionnelle(m,type_condition,true); 
+        printf("end\n");
+        return m;
+    }
+    if (type_condition==2){
         printf(" do \n");
         m= parcours_conditionnelle(m,type_condition,true); 
         printf("done;;\n");
@@ -328,8 +340,11 @@ void parcours(maillon* m){
     else if(strcmp(m->argument,"if") == 0){
       return parcours(parcours_conditionnelle(m,0,false));
     }
+    else if(strcmp(m->argument,"else") == 0){
+      return parcours(parcours_conditionnelle(m,1,false));
+    }
     else if(strcmp(m->argument,"while") == 0){
-      return parcours(parcours_conditionnelle(m,1,false)); 
+      return parcours(parcours_conditionnelle(m,2,false)); 
     }
     else if(strcmp(m->argument,"for") == 0){
         return parcours(m->suivant);
