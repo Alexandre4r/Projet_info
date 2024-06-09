@@ -51,6 +51,22 @@ bool est_fonction(maillon *m)
     }
     return est_fonction(m->suivant);
 }
+bool is_next_else(maillon *m)
+{
+    if (m == NULL)
+    {
+        return NULL;
+    };
+    if (strcmp(m->argument, "else") == 0)
+    {
+        return true;
+    }
+    else if (strcmp(m->argument, " ") == 0)
+    {
+        return is_next_else(m->suivant);
+    }
+    return false;
+}
 
 maillon *appel_fonction(maillon *m, int parentheses, char *end)
 {
@@ -554,14 +570,24 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
         {
             fprintf(fichierML," then begin \n");
             m = parcours_conditionnelle(m, type_condition, true, end);
-            fprintf(fichierML," end\n");
+            if (is_next_else(m)){
+                fprintf(fichierML," end\n");
+            }
+            else {
+                fprintf(fichierML," end%s\n",end);
+            }
             return m;
         }
         else if (type_condition == 1)
         {
             fprintf(fichierML," begin \n");
             m = parcours_conditionnelle(m, type_condition, true, end);
-            fprintf(fichierML," end\n");
+            if (is_next_else(m)){
+                fprintf(fichierML," end\n");
+            }
+            else {
+                fprintf(fichierML," end%s\n",end);
+            }
             return m;
         }
         else if (type_condition == 2)
@@ -627,11 +653,11 @@ maillon *parcours_conditionnelle(maillon *m, int type_condition, bool dans_accol
             }
             else if (strcmp(m->argument, "if") == 0)
             {
-                return parcours_conditionnelle(parcours_conditionnelle(m, 0, false, ""), type_condition, dans_accolades, end);
+                return parcours_conditionnelle(parcours_conditionnelle(m, 0, false, ";"), type_condition, dans_accolades, end);
             }
             else if (strcmp(m->argument, "else") == 0)
             {
-                return parcours_conditionnelle(parcours_conditionnelle(m, 1, false, ""), type_condition, dans_accolades, end);
+                return parcours_conditionnelle(parcours_conditionnelle(m, 1, false, ";"), type_condition, dans_accolades, end);
             }
             else if (strcmp(m->argument, "while") == 0)
             {
@@ -707,11 +733,11 @@ maillon *parcours_fonction(maillon *m)
         }
         else if (strcmp(m->argument, "if") == 0)
         {
-            return parcours_fonction(parcours_conditionnelle(m, 0, false, ""));
+            return parcours_fonction(parcours_conditionnelle(m, 0, false, ";"));
         }
         else if (strcmp(m->argument, "else") == 0)
         {
-            return parcours_fonction(parcours_conditionnelle(m, 1, false, ""));
+            return parcours_fonction(parcours_conditionnelle(m, 1, false, ";"));
         }
         else if (strcmp(m->argument, "while") == 0)
         {
@@ -831,11 +857,11 @@ void parcours(maillon *m)
         }
         else if (strcmp(m->argument, "if") == 0)
         {
-            return parcours(parcours_conditionnelle(m, 0, false, ""));
+            return parcours(parcours_conditionnelle(m, 0, false, ";;"));
         }
         else if (strcmp(m->argument, "else") == 0)
         {
-            return parcours(parcours_conditionnelle(m, 1, false, ""));
+            return parcours(parcours_conditionnelle(m, 1, false, ";;"));
         }
         else if (strcmp(m->argument, "while") == 0)
         {
