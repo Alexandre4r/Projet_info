@@ -47,6 +47,48 @@ void imprim(maillon* m){
   }
 }
 
+maillon* printf_(maillon* m, char* end){
+  int parent_ouv = 1;
+  int parent_ferm = 0;
+  bool first_parent = true;
+  if(m == NULL){return NULL;}
+
+  while(parent_ferm != parent_ouv){
+
+     if(strcmp(m->argument, "printf") == 0){
+      printf("Printf.printf");
+    }
+    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
+    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
+    else if((strcmp(m->argument, "(") == 0)){
+      parent_ouv += 1;
+      printf("(");
+    }
+
+    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
+      parent_ferm = parent_ferm+1;
+    }
+    else if(strcmp(m->argument,")") == 0){
+      printf(")");
+      parent_ferm = parent_ferm+1;
+    }
+
+    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on déctecte si ces virgules sont dans une chaîne de caractère
+    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
+      printf(" ");
+    }
+    else if(m->lexeme == 'V'){
+      printf("(!%s)", m->argument);
+    }else{
+      printf("%s", m->argument);
+    }
+    m = m->suivant;
+  }
+
+  printf("%s\n", end);
+  return m->suivant;
+
+}
 
 bool est_fonction(maillon* m){
   if(m == NULL){return NULL;};
@@ -67,7 +109,7 @@ maillon* appel_fonction(maillon* m, int parentheses, char* end){
   if(strcmp(m->argument,")") == 0){return appel_fonction(m->suivant, parentheses-1, end);}
   if(strcmp(m->argument,",") == 0){printf("), ref (");return appel_fonction(m->suivant, parentheses, end);}
   if(m->lexeme == 'V'&& parentheses==-1){printf("%s", m->argument);return appel_fonction(m->suivant, parentheses, end);}
-  if(m->lexeme == 'V'&& parentheses!=-1){printf("!%s", m->argument);return appel_fonction(m->suivant, parentheses, end);}
+  if(m->lexeme == 'V'&& parentheses!=-1){printf("(!%s)", m->argument);return appel_fonction(m->suivant, parentheses, end);}
   printf("%s", m->argument);
   return appel_fonction(m->suivant, parentheses, end);
 }
@@ -84,7 +126,7 @@ maillon* creer_declaration(maillon* m  ,int after_egal /*0 si avantle =, 1 si ap
   if(m->lexeme == 'V' && after_egal ==  1){
     if(est_fonction(m)){
       return creer_declaration(appel_fonction(m,-1,""),after_egal, end);
-    }else {printf("!%s", m->argument);return creer_declaration(m->suivant,after_egal,end);}}
+    }else {printf("(!%s)", m->argument);return creer_declaration(m->suivant,after_egal,end);}}
   if(strcmp(m->argument," ") != 0){printf("%s", m->argument);return creer_declaration(m->suivant,after_egal,end);};
   return creer_declaration(m->suivant,after_egal,end);
 }
@@ -97,7 +139,7 @@ maillon* creer_assignement(maillon* m, int after_egal, char* end){
   if(m->lexeme == 'V' && after_egal == 1){
     if(est_fonction(m)){
       return creer_assignement(appel_fonction(m,-1,""),after_egal, end);
-    }else {printf("!%s", m->argument);return creer_assignement(m->suivant,after_egal, end);}}
+    }else {printf("(!%s)", m->argument);return creer_assignement(m->suivant,after_egal, end);}}
   printf("%s", m->argument);
   return creer_assignement(m->suivant, after_egal, end);
 }
@@ -116,7 +158,7 @@ maillon* return_fonction(maillon* m){
     if(est_fonction(m)){
       return return_fonction(appel_fonction(m,-1,""));
     }else {
-        printf("!%s", m->argument);
+        printf("(!%s)", m->argument);
         return return_fonction(m->suivant);
         }
   }
@@ -127,53 +169,107 @@ maillon* return_fonction(maillon* m){
   return return_fonction(m->suivant);
 }
 
- maillon* printf_(maillon* m, char* end){
-  int parent_ouv = 1;
-  int parent_ferm = 0;
-  bool first_parent = true;
+maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accolades){
+  if (!dans_accolades){
+    while(strcmp(m->argument,"{") != 0){
+        if(strcmp(m->argument,"!=") == 0){
+            printf("<>");
+        }
+        else if(m->lexeme=='V'){
+            printf("(!%s)", m->argument);
+        }
+        else {
+        printf("%s", m->argument);
+        }
+        m = m->suivant;
+    }
+    if (type_condition==0){
+        printf(" then begin \n");
+        m= parcours_conditionnelle(m,type_condition,true); 
+        printf(" end;;\n");
+        return m;
+    }
+    if (type_condition==1){
+        printf(" do \n");
+        m= parcours_conditionnelle(m,type_condition,true); 
+        printf("done;;\n");
+        return m;
+    }
+    else{
+        printf(" for \n");
+        m= parcours_conditionnelle(m,type_condition,true); 
+        printf(" done;;\n");
+    }
+  }
+  else {
+    if(m == NULL){return NULL;}
+    else if(strcmp(m->argument,"}") == 0){
+        return m->suivant;}
+    else if(m->lexeme == 'T'){
+        if(est_fonction(m)){
+        return NULL;
+        }else
+        return parcours_conditionnelle(creer_declaration(m,0,";\n"),type_condition,dans_accolades);}
+    else if(m->lexeme == 'V'){    
+        if(est_fonction(m)){
+        return parcours_conditionnelle(appel_fonction(m,-1,";\n"),type_condition,dans_accolades);
+        }else {
+            return parcours_conditionnelle(creer_assignement(m, 0,";"),type_condition,dans_accolades);}}
+    //  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
+    else if(m->lexeme == 'C'){return parcours_conditionnelle(creer_commentaire(m, 0),type_condition,dans_accolades);} // commentaires //
+    else if(m->lexeme == 'A'){return parcours_conditionnelle(creer_commentaire(m, 1),type_condition,dans_accolades);} // commentaires  /**/
+    else if(m->lexeme == 'M'){
+        if(strcmp(m->argument,"return") == 0){
+        return parcours_conditionnelle(return_fonction(m),type_condition,dans_accolades); 
+        }
+        if(strcmp(m->argument, "printf") == 0){
+        return parcours_conditionnelle(printf_(m, ";"),type_condition,dans_accolades); //Fonction Printf
+        }
+        else if(strcmp(m->argument,"return") == 0){
+        return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);
+        }
+        /*
+        else if(strcmp(m->argument,"if") == 0){
+        return parcours_conditionnelle(creer_conditionnelle(m,0));
+        }
+        else if(strcmp(m->argument,"while") == 0){
+        return parcours_conditionnelle(creer_conditionnelle(m,1)); 
+        }
+        */
+        else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);}
+    }
+
+    else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);};
+  }
+}
+/*
+maillon* creer_conditionnelle(maillon* m, int if_or_while){
   if(m == NULL){return NULL;}
-
-  while(parent_ferm != parent_ouv){
-
-     if(strcmp(m->argument, "printf") == 0){
-      printf("Printf.printf");
+  while(strcmp(m->argument,"{") != 0){
+    if(strcmp(m->argument,"!=") == 0){
+        printf("<>");
     }
-    //On détecte des parenthèses, si c'est la prenthèses du printf, on l'écrit pas
-    else if((strcmp(m->argument, "(") == 0) && first_parent == true){printf(" "); first_parent = false;}
-    else if((strcmp(m->argument, "(") == 0)){
-      parent_ouv += 1;
-      printf("(");
+    else if(m->lexeme=='V'){
+        printf("(!%s)", m->argument);
     }
-    //On incrémente les compteurs de parenthèses et on vérfie si c'est la dérnière parenthèse 
-    else if(strcmp(m->argument,")") == 0 && parent_ferm == (parent_ouv-1)){
-      parent_ferm = parent_ferm+1;
-    }
-    else if(strcmp(m->argument,")") == 0){
-      printf(")");
-      parent_ferm = parent_ferm+1;
-    }
-
-    //On fait en sorte que les virgules entre les arguments en C ne soit pas écrits, on détecte si ces virgules sont dans une chaîne de caractère
-    else if(strcmp((m->argument), ",") == 0 && m->lexeme == 'P'){
-      printf(" ");
-    }
-    //On vérifie si l'argument est une fonction ou une variable pour pouvoir mettre les "!"
-    else if(m->lexeme == 'V' && est_fonction(m) == true){
-      printf("%s", m->argument);
-    }
-    else if(m->lexeme == 'V'){
-      printf("!%s", m->argument);
-    }else{
-      printf("%s", m->argument);
+    else {
+    printf("%s", m->argument);
     }
     m = m->suivant;
   }
-
-  printf("%s\n", end);
-  return m->suivant;
-
+  if (if_or_while==1){
+    printf(" do \n");
+    m= parcours_conditionnelle(m,if_or_while,true); 
+    printf("done;;\n");
+  }
+  else{
+    printf(" then begin \n");
+    m= parcours_conditionnelle(m,if_or_while,true); 
+    printf(" end;;\n");
+  }
+  return m;
 }
-
+*/
 
 maillon* parcours_fonction(maillon* m){
   if(m == NULL){return NULL;}
@@ -230,75 +326,6 @@ maillon* creer_fonction(maillon* m){
   return m;
 }
 
-maillon* parcours_conditionnelle(maillon* m){
-  if(m == NULL){return NULL;}
-  else if(strcmp(m->argument,"}") == 0){
-    return m->suivant;}
-  else if(m->lexeme == 'T'){
-    if(est_fonction(m)){
-      return NULL;
-    }else
-    return parcours_conditionnelle(creer_declaration(m,0,";;\n"));}
-  else if(m->lexeme == 'V'){    
-    if(est_fonction(m)){
-      return parcours_conditionnelle(appel_fonction(m,-1,";;\n"));
-    }else {
-        return parcours_conditionnelle(creer_assignement(m, 0,";;"));}}
-//  else if(strcmp(m->argument,"/") == 0){return parcours_fonction(creer_commentaire(m->suivant));}  ancienne ligne dcp jsp si j'ai modif comme de la merde
-  else if(m->lexeme == 'C'){return parcours_conditionnelle(creer_commentaire(m, 0));} // commentaires //
-  else if(m->lexeme == 'A'){return parcours_conditionnelle(creer_commentaire(m, 1));} // commentaires  /**/
-  else if(m->lexeme == 'M'){
-    if(strcmp(m->argument,"return") == 0){
-      return parcours_conditionnelle(return_fonction(m)); 
-    }
-    if(strcmp(m->argument, "printf") == 0){
-      return parcours_conditionnelle(printf_(m, ";;")); //Fonction Printf
-    }
-    else if(strcmp(m->argument,"return") == 0){
-      return parcours_conditionnelle(m->suivant);
-    }
-    /*
-    else if(strcmp(m->argument,"if") == 0){
-      return parcours_conditionnelle(creer_conditionnelle(m,0));
-    }
-    else if(strcmp(m->argument,"while") == 0){
-      return parcours_conditionnelle(creer_conditionnelle(m,1)); 
-    }
-    */
-    else{return parcours_conditionnelle(m->suivant);}
-  }
-
-  else{return parcours_fonction(m->suivant);};
-}
-
-maillon* creer_conditionnelle(maillon* m, int if_or_while){
-  if(m == NULL){return NULL;}
-  while(strcmp(m->argument,"{") != 0){
-    if(strcmp(m->argument,"!=") == 0){
-        printf("<>");
-    }
-    else if(m->lexeme=='V'){
-        printf("!%s", m->argument);
-    }
-    else {
-    printf("%s", m->argument);
-    }
-    m = m->suivant;
-  }
-  if (if_or_while==1){
-    printf(" do \n");
-    m= parcours_conditionnelle(m); 
-    printf("done;;\n");
-  }
-  else{
-    printf(" then begin \n");
-    m= parcours_conditionnelle(m); 
-    printf(" end;;\n");
-  }
-  return m;
-}
-
-
 
 void parcours(maillon* m){
   if(m == NULL){return;}
@@ -323,10 +350,10 @@ void parcours(maillon* m){
       return parcours(m->suivant);
     }
     else if(strcmp(m->argument,"if") == 0){
-      return parcours(creer_conditionnelle(m,0));
+      return parcours(parcours_conditionnelle(m,0,false));
     }
     else if(strcmp(m->argument,"while") == 0){
-      return parcours(creer_conditionnelle(m,1)); 
+      return parcours(parcours_conditionnelle(m,1,false)); 
     }
     else{return parcours(m->suivant);}
   }
