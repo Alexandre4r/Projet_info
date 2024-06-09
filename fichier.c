@@ -20,10 +20,6 @@ int main(){
     } else {
         i=i+1;
     }
-    for(int j=0;j>=5;j+=1){
-        i = j+i;
-    }
-
 }
 int funct(int i, int j){
     return i+j;
