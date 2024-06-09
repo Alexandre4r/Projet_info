@@ -199,21 +199,21 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         m = m->suivant;
     }
     if (type_condition==0 || else_if){
-        printf("then begin \n");
+        printf(" then begin \n");
         m= parcours_conditionnelle(m,type_condition,true,end); 
-        printf("end\n");
+        printf(" end\n");
         return m;
     }
     if (type_condition==1){
-        printf("begin \n");
+        printf(" begin \n");
         m= parcours_conditionnelle(m,type_condition,true,end); 
-        printf("end\n");
+        printf(" end\n");
         return m;
     }
     if (type_condition==2){
         printf(" do \n");
         m= parcours_conditionnelle(m,type_condition,true,end); 
-        printf("done%s\n",end);
+        printf(" done%s\n",end);
         return m;
     }
     else{
