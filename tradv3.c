@@ -249,8 +249,11 @@ maillon* parcours_conditionnelle(maillon* m, int type_condition, bool dans_accol
         else if(strcmp(m->argument,"if") == 0){
         return parcours_conditionnelle(parcours_conditionnelle(m,0,false),type_condition,dans_accolades);
         }
+        else if(strcmp(m->argument,"else") == 0){
+        return parcours_conditionnelle(parcours_conditionnelle(m,1,false),type_condition,dans_accolades);
+        }
         else if(strcmp(m->argument,"while") == 0){
-        return parcours_conditionnelle(parcours_conditionnelle(m,1,false),type_condition,dans_accolades); 
+        return parcours_conditionnelle(parcours_conditionnelle(m,2,false),type_condition,dans_accolades); 
         }
         else{return parcours_conditionnelle(m->suivant,type_condition,dans_accolades);}
     }
